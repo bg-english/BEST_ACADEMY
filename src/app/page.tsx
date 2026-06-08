@@ -7,6 +7,7 @@ import UnitCard from '@/components/UnitCard'
 import StudentHeader from '@/components/StudentHeader'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import LoginForm from '@/components/LoginForm'
+import Leaderboard from '@/components/Leaderboard'
 
 export default function HomePage() {
   const [student, setStudent] = useState<Student | null>(null)
@@ -144,10 +145,15 @@ export default function HomePage() {
         {/* Badges */}
         {badges.length > 0 && (
           <div className="mb-10">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">🏆 Your Badges</h2>
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">🏅 Tus insignias</h2>
             <BadgeDisplay badges={badges} />
           </div>
         )}
+
+        {/* Ranking de la clase */}
+        <div className="mb-10">
+          <Leaderboard studentName={student.name} />
+        </div>
       </main>
     </div>
   )
