@@ -116,3 +116,19 @@ export interface GradeResult {
   suggestion: string
   examples?: string[]
 }
+
+// ---- Motor de Práctica ----
+export interface PracticeExercise {
+  id: number
+  unit_id: number
+  area: string
+  level: number
+  type: 'multiple_choice' | 'fill_blank' | 'true_false' | 'reorder'
+  timed: boolean
+  time_limit_seconds?: number
+  prompt: string
+  payload: { options?: string[]; words?: string[]; accept?: string[] }
+  correct_answer: string
+  explanation?: string
+  xp_reward: number
+}

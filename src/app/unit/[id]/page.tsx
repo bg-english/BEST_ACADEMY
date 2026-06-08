@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Unit, Student } from '@/lib/types'
 import TheoryView from '@/components/theory/TheoryView'
-import ActivityModal from '@/components/ActivityModal'
+import PracticeView from '@/components/practice/PracticeView'
 
 type Tab = 'theory' | 'practice'
 
@@ -17,7 +17,6 @@ export default function UnitPage() {
   const [student, setStudent] = useState<Student | null>(null)
   const [unit, setUnit] = useState<Unit | null>(null)
   const [tab, setTab] = useState<Tab>('theory')
-  const [showPractice, setShowPractice] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -77,22 +76,10 @@ export default function UnitPage() {
           {tab === 'theory' ? (
             <TheoryView unitId={unit.id} studentId={student.id} />
           ) : (
-            <div className="max-w-2xl mx-auto bg-white rounded-3xl p-8 text-center shadow-2xl">
-              <div className="text-5xl mb-3">🏋️</div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Práctica</h2>
-              <p className="text-gray-500 mb-6">Pon a prueba lo que aprendiste con ejercicios de la unidad.</p>
-              <button onClick={() => setShowPractice(true)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90">
-                Empezar práctica 🎯
-              </button>
-            </div>
+            <PracticeView unitId={unit.id} studentId={student.id} />
           )}
         </main>
       </div>
-
-      {showPractice && (
-        <ActivityModal unit={unit} studentId={student.id} onClose={() => setShowPractice(false)} />
-      )}
     </div>
   )
 }
