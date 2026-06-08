@@ -6,6 +6,7 @@ import { Topic, TopicExample, TopicPractice } from '@/lib/types'
 import Celebration from '@/components/Celebration'
 import { recordProgress } from '@/lib/gamification'
 import { playCorrect, playWrong } from '@/lib/sound'
+import SpeakButton from '@/components/SpeakButton'
 import { Badge } from '@/lib/types'
 
 interface Props {
@@ -87,9 +88,12 @@ export default function GrammarTopic({ topic, studentId, onComplete, onBack }: P
               <h3 className="text-lg font-bold text-gray-800 mb-2">📚 Ejemplos</h3>
               <div className="grid sm:grid-cols-2 gap-2 mb-5">
                 {examples.map((ex) => (
-                  <div key={ex.id} className="bg-blue-50 rounded-xl px-3 py-2">
-                    <p className="font-medium text-gray-800 text-sm">{ex.text}</p>
-                    {ex.note && <p className="text-xs text-gray-500 mt-0.5">{ex.note}</p>}
+                  <div key={ex.id} className="bg-blue-50 rounded-xl px-3 py-2 flex items-start gap-2">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-800 text-sm">{ex.text}</p>
+                      {ex.note && <p className="text-xs text-gray-500 mt-0.5">{ex.note}</p>}
+                    </div>
+                    <SpeakButton text={ex.text} />
                   </div>
                 ))}
               </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Topic, VocabWord, GradeResult } from '@/lib/types'
 import Celebration from '@/components/Celebration'
+import SpeakButton from '@/components/SpeakButton'
 import { recordProgress } from '@/lib/gamification'
 
 interface Props {
@@ -135,8 +136,9 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
         </div>
 
         {/* Tarjeta de la palabra */}
-        <div className="text-center bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl py-3 px-4 mb-4 flex items-baseline justify-center gap-3 flex-wrap">
+        <div className="text-center bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl py-3 px-4 mb-4 flex items-center justify-center gap-3 flex-wrap">
           <span className="text-2xl sm:text-3xl font-bold">{word.word}</span>
+          <SpeakButton text={word.word} className="text-white text-2xl" />
           {word.phonetic && <span className="text-blue-100 text-sm">{word.phonetic}</span>}
           {word.part_of_speech && <span className="text-xs uppercase tracking-wide text-blue-200">{word.part_of_speech}</span>}
         </div>
@@ -173,7 +175,10 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
                     <h3 className="font-bold text-gray-800 mb-2">📖 Mira cómo se usa:</h3>
                     <div className="grid sm:grid-cols-2 gap-2">
                       {examples.map((ex, i) => (
-                        <div key={i} className="bg-blue-50 rounded-xl px-3 py-2 text-sm text-gray-800">{ex}</div>
+                        <div key={i} className="bg-blue-50 rounded-xl px-3 py-2 text-sm text-gray-800 flex items-center gap-2">
+                          <span className="flex-1">{ex}</span>
+                          <SpeakButton text={ex} />
+                        </div>
                       ))}
                     </div>
                   </div>
