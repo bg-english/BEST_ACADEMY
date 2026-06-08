@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAdminClient } from '@/lib/supabaseAdmin'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -13,6 +14,7 @@ interface GradeBody {
   partOfSpeech?: string
   referenceDefinition?: string
   studentText: string
+  wordId?: number   // si viene, el servidor lee la definición de referencia y los ejemplos secretos
 }
 
 function buildPrompt(b: GradeBody): string {
@@ -75,6 +77,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Faltan datos (task, word, studentText).' }, { status: 400 })
   }
 
+  // Si viene wordId, leer del servidor la definición de referencia y los ejemplos (columnas secretas)
+  let examples: string[] = []
+  if (body.wordId) {
+    try {
+      const admin = getAdminClient()
+      const { data } = await admin
+        .from('vocabulary_words')
+        .select('reference_definition, examples, part_of_speech')
+        .eq('id', body.wordId)
+        .maybeSingle()
+      if (data) {
+        body.referenceDefinition = body.referenceDefinition || data.reference_definition || undefined
+        body.partOfSpeech = body.partOfSpeech || data.part_of_speech || undefined
+        examples = Array.isArray(data.examples) ? data.examples : []
+      }
+    } catch {
+      // sin service_role configurada, seguimos solo con el calificador
+    }
+  }
+
   const client = new Anthropic()
   try {
     const msg = await client.messages.create({
@@ -91,7 +113,9 @@ export async function POST(req: NextRequest) {
         { status: 502 }
       )
     }
-    return NextResponse.json(parsed)
+    // Al acertar una definición, devolvemos los ejemplos ocultos para mostrarlos al alumno
+    const examplesToReturn = parsed.correct && body.task === 'definition' ? examples : []
+    return NextResponse.json({ ...parsed, examples: examplesToReturn })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Error al calificar'
     return NextResponse.json({ error: message }, { status: 502 })

@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Unit } from '@/lib/types'
-import ActivityModal from './ActivityModal'
 
 interface Props {
   unit: Unit
@@ -21,8 +20,8 @@ const UNIT_COLORS = [
 
 const UNIT_ICONS = ['🗣️', '🏫', '👨‍👩‍👧', '📅']
 
-export default function UnitCard({ unit, progress, isUnlocked, studentId, onComplete }: Props) {
-  const [showModal, setShowModal] = useState(false)
+export default function UnitCard({ unit, progress, isUnlocked }: Props) {
+  const router = useRouter()
   const colorClass = UNIT_COLORS[(unit.number - 1) % UNIT_COLORS.length]
   const icon = UNIT_ICONS[(unit.number - 1) % UNIT_ICONS.length]
 
@@ -30,7 +29,7 @@ export default function UnitCard({ unit, progress, isUnlocked, studentId, onComp
     <>
       <div
         className={`card-hover rounded-2xl overflow-hidden shadow-lg cursor-pointer ${!isUnlocked ? 'opacity-60' : ''}`}
-        onClick={() => isUnlocked && setShowModal(true)}
+        onClick={() => isUnlocked && router.push(`/unit/${unit.id}`)}
       >
         <div className={`bg-gradient-to-br ${colorClass} p-6 text-white`}>
           <div className="flex justify-between items-start mb-4">
@@ -60,14 +59,6 @@ export default function UnitCard({ unit, progress, isUnlocked, studentId, onComp
           </div>
         </div>
       </div>
-
-      {showModal && (
-        <ActivityModal
-          unit={unit}
-          studentId={studentId}
-          onClose={() => { setShowModal(false); onComplete() }}
-        />
-      )}
     </>
   )
 }

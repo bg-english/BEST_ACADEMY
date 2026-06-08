@@ -67,3 +67,52 @@ export interface AreaPerformance {
   correct_attempts: number
   accuracy: number
 }
+
+// ---- Motor de Teoría ----
+export interface Topic {
+  id: number
+  unit_id: number
+  order_index: number
+  kind: 'grammar' | 'vocabulary'
+  title: string
+  explanation: string
+}
+
+export interface TopicExample {
+  id: number
+  topic_id: number
+  order_index: number
+  text: string
+  note?: string
+}
+
+export interface TopicPractice {
+  id: number
+  topic_id: number
+  order_index: number
+  question: string
+  options: string[]
+  correct_answer: string
+  explanation: string
+}
+
+export interface VocabWord {
+  id: number
+  topic_id: number
+  order_index: number
+  word: string
+  part_of_speech?: string
+  phonetic?: string
+}
+
+export interface StudentTopicProgress {
+  topic_id: number
+  completed: boolean
+}
+
+export interface GradeResult {
+  correct: boolean
+  feedback: string
+  suggestion: string
+  examples?: string[]
+}
