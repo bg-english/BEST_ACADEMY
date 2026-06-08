@@ -1,17 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Public configuration - safe to expose in frontend
+// Public Supabase config - anon key is safe to expose (controlled by RLS policies)
 const SUPABASE_URL = 'https://cuynuqycsiexwfcwshys.supabase.co'
-// Anon key - public, read-only by default, controlled by RLS policies
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1eW51cXljc2lleHdmY3dzaHlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkzMjgzMzIsImV4cCI6MjA2NDkwNDMzMn0.nEfwkDPi7GnpVJxNI3yp-YVNHt2T3b-iKgfQ7YqQJ7E'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? SUPABASE_URL
-const supabaseAnonKey = SUPABASE_ANON_KEY
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// Server-side admin client (only used in API routes, never in browser)
-export const getSupabaseAdmin = () => createClient(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY
 )
