@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Student, AreaPerformance } from '@/lib/types'
+import { Student, Unit } from '@/lib/types'
 import StudentTable from '@/components/StudentTable'
-import AreaChart from '@/components/AreaChart'
 import DashboardHeader from '@/components/DashboardHeader'
 
 type Tab = 'overview' | 'manage'
@@ -23,8 +22,10 @@ export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>('overview')
   const [students, setStudents] = useState<Student[]>([])
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
-  const [areaPerformance, setAreaPerformance] = useState<AreaPerformance[]>([])
-  const [allPerformance, setAllPerformance] = useState<AreaPerformance[]>([])
+  const [units, setUnits] = useState<Unit[]>([])
+  const [topicsByStudent, setTopicsByStudent] = useState<Record<string, number>>({})
+  const [vocabByStudent, setVocabByStudent] = useState<Record<string, number>>({})
+  const [practiceByStudent, setPracticeByStudent] = useState<Record<string, Record<number, number>>>({})
   const [loading, setLoading] = useState(true)
 
   // ---- Auth -------------------------------------------------
@@ -91,24 +92,33 @@ export default function DashboardPage() {
 
   // ---- Data -------------------------------------------------
   const loadStudents = useCallback(async () => {
-    const { data } = await supabase
-      .from('students')
-      .select('*')
-      .order('total_xp', { ascending: false })
-    if (data) setStudents(data as Student[])
+    const [studRes, unitRes, topicRes, vocabRes, pstatRes] = await Promise.all([
+      supabase.from('students').select('*').order('total_xp', { ascending: false }),
+      supabase.from('units').select('id, number, title').order('number'),
+      supabase.from('student_topic_progress').select('student_id').eq('completed', true),
+      supabase.from('student_vocab').select('student_id').eq('sentences_ok', true),
+      supabase.from('student_practice_stats').select('student_id, unit_id, level_reached'),
+    ])
+    if (studRes.data) setStudents(studRes.data as Student[])
+    if (unitRes.data) setUnits(unitRes.data as Unit[])
 
-    const { data: perfData } = await supabase.from('student_area_performance').select('*')
-    if (perfData) setAllPerformance(perfData as AreaPerformance[])
+    const tMap: Record<string, number> = {}
+    ;(topicRes.data || []).forEach((r: { student_id: string }) => { tMap[r.student_id] = (tMap[r.student_id] || 0) + 1 })
+    setTopicsByStudent(tMap)
+
+    const vMap: Record<string, number> = {}
+    ;(vocabRes.data || []).forEach((r: { student_id: string }) => { vMap[r.student_id] = (vMap[r.student_id] || 0) + 1 })
+    setVocabByStudent(vMap)
+
+    const pMap: Record<string, Record<number, number>> = {}
+    ;(pstatRes.data || []).forEach((r: { student_id: string; unit_id: number; level_reached: number }) => {
+      pMap[r.student_id] = pMap[r.student_id] || {}
+      pMap[r.student_id][r.unit_id] = r.level_reached
+    })
+    setPracticeByStudent(pMap)
+
     setLoading(false)
   }, [])
-
-  const loadStudentPerformance = async (studentId: string) => {
-    const { data } = await supabase
-      .from('student_area_performance')
-      .select('*')
-      .eq('student_id', studentId)
-    if (data) setAreaPerformance(data as AreaPerformance[])
-  }
 
   useEffect(() => {
     if (!isTeacher) return
@@ -116,14 +126,13 @@ export default function DashboardPage() {
     const channel = supabase
       .channel('student-updates')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => loadStudents())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'student_progress' }, () => loadStudents())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'student_practice_stats' }, () => loadStudents())
       .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [isTeacher, loadStudents])
 
   const handleSelectStudent = (student: Student) => {
     setSelectedStudent(student)
-    loadStudentPerformance(student.id)
   }
 
   // ---- Render: not authenticated ----------------------------
@@ -179,12 +188,14 @@ export default function DashboardPage() {
   }
 
   // ---- Render: teacher dashboard ----------------------------
-  const areas = ['vocabulary', 'grammar', 'listening', 'speaking', 'writing']
-  const getClassAverage = (area: string) => {
-    const areaData = allPerformance.filter(p => p.area === area)
-    if (areaData.length === 0) return 0
-    return Math.round(areaData.reduce((sum, p) => sum + (p.accuracy || 0), 0) / areaData.length)
-  }
+  const sumValues = (m: Record<string, number>) => Object.values(m).reduce((a, b) => a + b, 0)
+  const avgXp = students.length ? Math.round(students.reduce((s, st) => s + (st.total_xp || 0), 0) / students.length) : 0
+  const classCards = [
+    { icon: '🎓', label: 'Alumnos', value: students.length },
+    { icon: '⭐', label: 'XP promedio', value: avgXp },
+    { icon: '📘', label: 'Temas completados', value: sumValues(topicsByStudent) },
+    { icon: '🗂️', label: 'Palabras dominadas', value: sumValues(vocabByStudent) },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -207,15 +218,12 @@ export default function DashboardPage() {
 
         {tab === 'overview' ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-              {areas.map(area => (
-                <div key={area} className="bg-white rounded-2xl p-4 shadow text-center">
-                  <div className="text-3xl mb-1">
-                    {area === 'vocabulary' ? '📖' : area === 'grammar' ? '✏️' : area === 'listening' ? '👂' : area === 'speaking' ? '🗣️' : '✍️'}
-                  </div>
-                  <div className="text-sm text-gray-500 capitalize">{area}</div>
-                  <div className="text-2xl font-bold text-blue-600">{getClassAverage(area)}%</div>
-                  <div className="text-xs text-gray-400">class avg</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {classCards.map(c => (
+                <div key={c.label} className="bg-white rounded-2xl p-4 shadow text-center">
+                  <div className="text-3xl mb-1">{c.icon}</div>
+                  <div className="text-2xl font-bold text-blue-600">{c.value}</div>
+                  <div className="text-xs text-gray-400">{c.label}</div>
                 </div>
               ))}
             </div>
@@ -247,16 +255,47 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="bg-white rounded-2xl p-4 shadow text-center">
+                        <div className="text-2xl font-bold text-purple-600">Nivel {selectedStudent.level}</div>
+                        <div className="text-xs text-gray-400">Nivel</div>
+                      </div>
+                      <div className="bg-white rounded-2xl p-4 shadow text-center">
+                        <div className="text-2xl font-bold text-blue-600">{topicsByStudent[selectedStudent.id] || 0}</div>
+                        <div className="text-xs text-gray-400">Temas</div>
+                      </div>
+                      <div className="bg-white rounded-2xl p-4 shadow text-center">
+                        <div className="text-2xl font-bold text-green-600">{vocabByStudent[selectedStudent.id] || 0}</div>
+                        <div className="text-xs text-gray-400">Palabras</div>
+                      </div>
+                    </div>
                     <div className="bg-white rounded-2xl p-6 shadow">
-                      <h3 className="text-lg font-bold text-gray-800 mb-4">Performance by Area</h3>
-                      <AreaChart performance={areaPerformance} studentName={selectedStudent.name} />
+                      <h3 className="text-lg font-bold text-gray-800 mb-4">Práctica por unidad</h3>
+                      <div className="space-y-3">
+                        {units.map(u => {
+                          const lvl = practiceByStudent[selectedStudent.id]?.[u.id] || 0
+                          const pct = Math.min(100, Math.round((lvl / 6) * 100))
+                          return (
+                            <div key={u.id}>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span className="text-gray-700 font-medium truncate">Unit {u.number}: {u.title}</span>
+                                <span className="text-gray-400">Nivel {lvl}/6</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style={{ width: `${pct}%` }} />
+                              </div>
+                            </div>
+                          )
+                        })}
+                        {units.length === 0 && <p className="text-gray-400 text-sm">Sin unidades.</p>}
+                      </div>
                     </div>
                   </div>
                 ) : (
                   <div className="bg-white rounded-2xl p-12 shadow text-center">
                     <div className="text-6xl mb-4">👈</div>
-                    <h3 className="text-xl font-bold text-gray-600">Select a student</h3>
-                    <p className="text-gray-400">Click on a student to see their detailed performance</p>
+                    <h3 className="text-xl font-bold text-gray-600">Selecciona un alumno</h3>
+                    <p className="text-gray-400">Toca un alumno para ver su progreso detallado</p>
                   </div>
                 )}
               </div>
