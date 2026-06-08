@@ -37,7 +37,9 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
   const [sentBusy, setSentBusy] = useState(false)
 
   useEffect(() => {
-    supabase.from('vocabulary_words').select('*').eq('topic_id', topic.id).order('order_index')
+    supabase.from('vocabulary_words')
+      .select('id, topic_id, order_index, word, part_of_speech, phonetic')
+      .eq('topic_id', topic.id).order('order_index')
       .then(({ data }) => { if (data) setWords(data as VocabWord[]) })
   }, [topic.id])
 
