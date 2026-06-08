@@ -111,18 +111,18 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <button onClick={onBack} className="text-blue-200 hover:text-white mb-4">← Volver a temas</button>
-      <div className="bg-white rounded-3xl p-6 shadow-2xl">
-        <div className="flex justify-between items-center mb-4">
+    <div className="max-w-3xl mx-auto">
+      <button onClick={onBack} className="text-blue-200 hover:text-white mb-3">← Volver a temas</button>
+      <div className="bg-white rounded-3xl p-5 shadow-2xl">
+        <div className="flex justify-between items-center mb-3">
           <div className="text-xs font-bold text-purple-500 uppercase">Vocabulario · Palabra {idx + 1} de {words.length}</div>
         </div>
 
         {/* Tarjeta de la palabra */}
-        <div className="text-center bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl p-5 mb-5">
-          <div className="text-3xl font-bold">{word.word}</div>
-          {word.phonetic && <div className="text-blue-100 mt-1">{word.phonetic}</div>}
-          {word.part_of_speech && <div className="text-xs uppercase tracking-wide text-blue-200 mt-1">{word.part_of_speech}</div>}
+        <div className="text-center bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl py-3 px-4 mb-4 flex items-baseline justify-center gap-3 flex-wrap">
+          <span className="text-2xl sm:text-3xl font-bold">{word.word}</span>
+          {word.phonetic && <span className="text-blue-100 text-sm">{word.phonetic}</span>}
+          {word.part_of_speech && <span className="text-xs uppercase tracking-wide text-blue-200">{word.part_of_speech}</span>}
         </div>
 
         {/* ETAPA 1: el alumno escribe el significado */}
@@ -148,11 +148,11 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
             ) : (
               <>
                 {examples.length > 0 && (
-                  <div className="mt-5">
+                  <div className="mt-4">
                     <h3 className="font-bold text-gray-800 mb-2">📖 Mira cómo se usa:</h3>
-                    <div className="space-y-2">
+                    <div className="grid sm:grid-cols-2 gap-2">
                       {examples.map((ex, i) => (
-                        <div key={i} className="bg-blue-50 rounded-xl px-4 py-2 text-gray-800">{ex}</div>
+                        <div key={i} className="bg-blue-50 rounded-xl px-3 py-2 text-sm text-gray-800">{ex}</div>
                       ))}
                     </div>
                   </div>

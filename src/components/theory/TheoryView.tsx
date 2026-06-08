@@ -56,7 +56,7 @@ export default function TheoryView({ unitId, studentId }: Props) {
     <div className="space-y-3 max-w-2xl mx-auto">
       {topics.map((t) => (
         <button key={t.id} onClick={() => setActive(t)}
-          className="w-full text-left bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition flex items-center gap-4">
+          className="w-full text-left bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition flex items-center gap-4">
           <div className="text-3xl">{t.kind === 'vocabulary' ? '🗂️' : '📐'}</div>
           <div className="flex-1">
             <div className="text-xs font-bold uppercase text-purple-500">

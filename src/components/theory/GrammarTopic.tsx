@@ -60,23 +60,23 @@ export default function GrammarTopic({ topic, studentId, onComplete, onBack }: P
   // ---- LEARN: explicación + ejemplos ----
   if (phase === 'learn') {
     return (
-      <div className="max-w-2xl mx-auto">
-        <button onClick={onBack} className="text-blue-200 hover:text-white mb-4">← Volver a temas</button>
-        <div className="bg-white rounded-3xl p-6 shadow-2xl">
+      <div className="max-w-3xl mx-auto">
+        <button onClick={onBack} className="text-blue-200 hover:text-white mb-3">← Volver a temas</button>
+        <div className="bg-white rounded-3xl p-5 shadow-2xl">
           <div className="text-xs font-bold text-purple-500 uppercase mb-1">Teoría · Gramática</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">{topic.title}</h2>
-          <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-line leading-relaxed mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">{topic.title}</h2>
+          <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-line leading-relaxed mb-5">
             {topic.explanation}
           </div>
 
           {examples.length > 0 && (
             <>
-              <h3 className="text-lg font-bold text-gray-800 mb-3">📚 Ejemplos</h3>
-              <div className="space-y-2 mb-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-2">📚 Ejemplos</h3>
+              <div className="grid sm:grid-cols-2 gap-2 mb-5">
                 {examples.map((ex) => (
-                  <div key={ex.id} className="bg-blue-50 rounded-xl px-4 py-3">
-                    <p className="font-medium text-gray-800">{ex.text}</p>
-                    {ex.note && <p className="text-sm text-gray-500 mt-0.5">{ex.note}</p>}
+                  <div key={ex.id} className="bg-blue-50 rounded-xl px-3 py-2">
+                    <p className="font-medium text-gray-800 text-sm">{ex.text}</p>
+                    {ex.note && <p className="text-xs text-gray-500 mt-0.5">{ex.note}</p>}
                   </div>
                 ))}
               </div>

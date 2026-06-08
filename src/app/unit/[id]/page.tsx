@@ -52,17 +52,17 @@ export default function UnitPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-      <header className="container mx-auto px-4 py-5 flex items-center justify-between">
+      <header className="container mx-auto px-4 py-3 flex items-center justify-between">
         <button onClick={() => router.push('/')} className="text-blue-200 hover:text-white">← Inicio</button>
         <div className="text-center">
           <div className="text-xs text-blue-300 uppercase tracking-wide">Unit {unit.number}</div>
-          <h1 className="text-xl font-bold text-white">{unit.title}</h1>
+          <h1 className="text-lg sm:text-xl font-bold text-white">{unit.title}</h1>
         </div>
         <div className="w-12" />
       </header>
 
       <div className="container mx-auto px-4">
-        <div className="flex gap-2 justify-center mb-6">
+        <div className="flex gap-2 justify-center mb-4">
           <button onClick={() => setTab('theory')}
             className={`px-5 py-2 rounded-full font-semibold ${tab === 'theory' ? 'bg-white text-purple-700' : 'bg-white/10 text-white'}`}>
             📘 Teoría
