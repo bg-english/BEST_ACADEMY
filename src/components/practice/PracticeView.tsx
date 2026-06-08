@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { PracticeExercise, Badge } from '@/lib/types'
 import Celebration from '@/components/Celebration'
@@ -40,6 +40,10 @@ export default function PracticeView({ unitId, studentId }: Props) {
   const [newBadges, setNewBadges] = useState<Badge[]>([])
   const [reviewMode, setReviewMode] = useState(false)
   const [reviewCount, setReviewCount] = useState(0)
+  const [adaptiveMode, setAdaptiveMode] = useState(false)
+  const [ability, setAbility] = useState(1)
+  const seenRef = useRef<Set<number>>(new Set())
+  const ADAPT_TOTAL = 12
 
   // estado por ejercicio
   const [answered, setAnswered] = useState(false)
@@ -59,7 +63,47 @@ export default function PracticeView({ unitId, studentId }: Props) {
   }, [unitId, studentId])
 
   const levels = useMemo(() => Array.from(new Set(exercises.map((e) => e.level))).sort((a, b) => a - b), [exercises])
+  const maxLevel = levels.length ? levels[levels.length - 1] : 1
   const ex = queue[idx]
+
+  // Elige el ejercicio más cercano al nivel objetivo, sin repetir en la sesión
+  const pickAdaptive = useCallback((target: number): PracticeExercise | null => {
+    const t = Math.max(1, Math.min(maxLevel, Math.round(target)))
+    const avail = exercises.filter((e) => !seenRef.current.has(e.id))
+    const pool = avail.length ? avail : exercises
+    if (pool.length === 0) return null
+    const minDist = Math.min(...pool.map((e) => Math.abs(e.level - t)))
+    const band = pool.filter((e) => Math.abs(e.level - t) === minDist)
+    const choice = band[Math.floor(Math.random() * band.length)]
+    seenRef.current.add(choice.id)
+    return choice
+  }, [exercises, maxLevel])
+
+  const startAdaptive = () => {
+    seenRef.current = new Set()
+    const startAbility = Math.max(1, Math.min(maxLevel, levelReached || 1))
+    setAbility(startAbility)
+    const first = pickAdaptive(startAbility)
+    if (!first) return
+    setAdaptiveMode(true); setReviewMode(false)
+    setQueue([first]); setIdx(0); setScore(0); setXp(0); setView('play')
+    setupExercise(first)
+  }
+
+  const finishAdaptive = async () => {
+    const reached = Math.round(ability)
+    const newReached = Math.max(levelReached, reached)
+    await supabase.from('student_practice_stats').upsert(
+      { student_id: studentId, unit_id: unitId, area: 'all', level_reached: newReached,
+        total_correct: score, total_answered: queue.length, updated_at: new Date().toISOString() },
+      { onConflict: 'student_id,unit_id,area' }
+    )
+    setLevelReached(newReached)
+    if (xp > 0) {
+      const { newBadges } = await recordProgress(studentId, xp)
+      setNewBadges(newBadges)
+    }
+  }
 
   const setupExercise = useCallback((e: PracticeExercise) => {
     setAnswered(false); setIsCorrect(false); setChosen(null); setInput(''); setBuilt([])
@@ -83,6 +127,12 @@ export default function PracticeView({ unitId, studentId }: Props) {
     setAnswered(true); setIsCorrect(ok); setChosen(answer)
     if (ok) { setScore((s) => s + 1); setXp((x) => x + ex.xp_reward); playCorrect() }
     else playWrong()
+    // Dificultad adaptativa: sube si acierta (más si fue rápido), baja si falla
+    if (adaptiveMode) {
+      const fast = ex.timed && timeLeft !== null && timeLeft > (ex.time_limit_seconds || 0) * 0.4
+      const delta = ok ? (fast ? 0.45 : 0.3) : -0.45
+      setAbility((a) => Math.max(1, Math.min(maxLevel, a + delta)))
+    }
     // Registrar el intento (para el repaso de errores). Fire-and-forget.
     supabase.from('student_practice_attempts').insert({ student_id: studentId, exercise_id: ex.id, is_correct: ok })
   }
@@ -114,6 +164,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
 
   const goMap = async () => {
     setReviewMode(false)
+    setAdaptiveMode(false)
     setView('map')
     const r = await computeReview()
     setReviewCount(r.length)
@@ -153,6 +204,18 @@ export default function PracticeView({ unitId, studentId }: Props) {
   }
 
   const next = () => {
+    if (adaptiveMode) {
+      if (idx + 1 >= ADAPT_TOTAL) {
+        finishAdaptive()
+        setView('levelDone')
+      } else {
+        const picked = pickAdaptive(ability)
+        if (!picked) { finishAdaptive(); setView('levelDone'); return }
+        const nq = [...queue, picked]
+        setQueue(nq); setIdx(idx + 1); setupExercise(picked)
+      }
+      return
+    }
     if (idx + 1 >= queue.length) {
       finishLevel()
       setView('levelDone')
@@ -174,6 +237,13 @@ export default function PracticeView({ unitId, studentId }: Props) {
         <div className="text-center text-blue-100 mb-4">
           Tu dominio: <span className="font-bold text-white">Nivel {levelReached} de {levels.length}</span>
         </div>
+
+        <button onClick={startAdaptive}
+          className="w-full mb-4 bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:opacity-90 transition">
+          🎯 Práctica adaptativa <span className="font-normal opacity-90">— se ajusta a tu nivel</span>
+        </button>
+
+        <div className="text-center text-blue-200 text-sm mb-2">o elige un nivel:</div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {levels.map((lvl) => {
             const unlocked = lvl <= levelReached + 1
@@ -200,9 +270,25 @@ export default function PracticeView({ unitId, studentId }: Props) {
     )
   }
 
-  // ---- NIVEL / REPASO COMPLETADO ----
+  // ---- NIVEL / REPASO / ADAPTATIVA COMPLETADO ----
   if (view === 'levelDone') {
     const acc = queue.length ? Math.round((score / queue.length) * 100) : 0
+    if (adaptiveMode) {
+      const reached = Math.round(ability)
+      return (
+        <Celebration
+          show
+          sound="level"
+          emoji={reached >= maxLevel ? '🏆' : reached >= 3 ? '🎯' : '💪'}
+          title="¡Práctica adaptativa completada!"
+          subtitle={`Tu nivel de dominio: Nivel ${reached} de ${maxLevel}`}
+          stats={[{ label: 'Aciertos', value: `${score}/${queue.length} (${acc}%)` }, { label: 'XP', value: `+${xp}` }]}
+          badges={newBadges.map((b) => ({ name: b.name, icon: b.icon }))}
+          buttonLabel="Volver al mapa"
+          onClose={goMap}
+        />
+      )
+    }
     if (reviewMode) {
       return (
         <Celebration
@@ -244,12 +330,24 @@ export default function PracticeView({ unitId, studentId }: Props) {
       <button onClick={goMap} className="text-blue-200 hover:text-white mb-3">← Salir</button>
       <div className="bg-white rounded-3xl p-5 shadow-2xl">
         <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
-          <span>{reviewMode ? '🔁 Repaso' : `Nivel ${level}`} · {idx + 1}/{queue.length}</span>
+          <span>{adaptiveMode ? '🎯 Adaptativa' : reviewMode ? '🔁 Repaso' : `Nivel ${level}`} · {idx + 1}/{adaptiveMode ? ADAPT_TOTAL : queue.length}</span>
           <span className="capitalize">{ex.area}</span>
           {timeLeft !== null && (
             <span className={`font-bold ${timeLeft <= 3 ? 'text-red-500' : 'text-blue-600'}`}>⏱️ {timeLeft}s</span>
           )}
         </div>
+        {adaptiveMode && (
+          <div className="mb-3">
+            <div className="flex justify-between text-xs text-gray-400 mb-1">
+              <span>Dificultad</span>
+              <span className="font-semibold text-purple-600">Nivel {Math.round(ability)}</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div className="bg-gradient-to-r from-fuchsia-500 to-purple-600 h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${(ability / maxLevel) * 100}%` }} />
+            </div>
+          </div>
+        )}
         <p className="text-lg font-semibold text-gray-800 mb-4">{ex.prompt}</p>
 
         {/* OPCIÓN MÚLTIPLE */}
