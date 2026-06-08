@@ -21,11 +21,17 @@ export default function HomePage() {
   }, [])
 
   const checkSession = async () => {
-    const stored = localStorage.getItem('best_student')
-    if (stored) {
-      const s = JSON.parse(stored)
-      setStudent(s)
-      loadStudentData(s.id)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.user) {
+      const { data: s } = await supabase
+        .from('students')
+        .select('*')
+        .eq('id', session.user.id)
+        .maybeSingle()
+      if (s) {
+        setStudent(s as Student)
+        loadStudentData(s.id)
+      }
     }
     setLoading(false)
   }
@@ -51,13 +57,12 @@ export default function HomePage() {
 
   const handleLogin = (s: Student) => {
     setStudent(s)
-    localStorage.setItem('best_student', JSON.stringify(s))
     loadStudentData(s.id)
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
     setStudent(null)
-    localStorage.removeItem('best_student')
     setProgress([])
     setBadges([])
   }

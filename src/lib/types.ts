@@ -25,6 +25,7 @@ export interface Student {
   name: string
   email: string
   avatar_url?: string
+  age?: number
   total_xp: number
   current_streak: number
   level: number
