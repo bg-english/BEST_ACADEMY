@@ -283,6 +283,10 @@ function ManageStudents({ students, onChanged }: { students: Student[]; onChange
   const [importing, setImporting] = useState(false)
   const [importResult, setImportResult] = useState<{ name: string; pin: string }[] | null>(null)
   const [importSkipped, setImportSkipped] = useState<{ name: string; reason: string }[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editAge, setEditAge] = useState('')
+  const [editEmail, setEditEmail] = useState('')
 
   const authHeader = async () => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -340,6 +344,36 @@ function ManageStudents({ students, onChanged }: { students: Student[]; onChange
     } else setMsg(`❌ ${json.error}`)
   }
 
+  const startEdit = (s: Student) => {
+    setEditingId(s.id)
+    setEditName(s.name)
+    setEditAge(s.age != null ? String(s.age) : '')
+    setEditEmail(s.email || '')
+    setMsg('')
+  }
+
+  const cancelEdit = () => setEditingId(null)
+
+  const saveEdit = async (studentId: string) => {
+    setMsg('')
+    const res = await fetch('/api/students/update', {
+      method: 'POST',
+      headers: await authHeader(),
+      body: JSON.stringify({
+        studentId,
+        name: editName.trim(),
+        age: editAge,
+        email: editEmail.trim(),
+      }),
+    })
+    const json = await res.json()
+    if (res.ok) {
+      setEditingId(null)
+      setMsg('✅ Alumno actualizado.')
+      onChanged()
+    } else setMsg(`❌ ${json.error}`)
+  }
+
   const resetPin = async (studentId: string, studentName: string) => {
     const newPin = prompt(`Nuevo PIN para ${studentName} (4-8 dígitos):`)
     if (!newPin) return
@@ -376,14 +410,37 @@ function ManageStudents({ students, onChanged }: { students: Student[]; onChange
         <h3 className="text-lg font-bold text-gray-800 mb-4">Alumnos ({students.length})</h3>
         <div className="divide-y">
           {students.map((s) => (
-            <div key={s.id} className="flex items-center justify-between py-2">
-              <div>
-                <div className="font-medium text-gray-800">{s.name}</div>
-                <div className="text-xs text-gray-400">{s.email}</div>
+            editingId === s.id ? (
+              <div key={s.id} className="py-3 space-y-2 bg-blue-50 -mx-2 px-2 rounded-lg">
+                <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nombre y apellidos"
+                  className="w-full border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <div className="flex gap-2">
+                  <input value={editAge} onChange={(e) => setEditAge(e.target.value)} placeholder="Edad" type="number"
+                    className="w-24 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="Correo"
+                    className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => saveEdit(s.id)}
+                    className="bg-green-600 text-white text-sm px-3 py-1 rounded-lg hover:bg-green-700">Guardar</button>
+                  <button onClick={cancelEdit}
+                    className="bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-lg hover:bg-gray-300">Cancelar</button>
+                </div>
               </div>
-              <button onClick={() => resetPin(s.id, s.name)}
-                className="text-sm text-blue-600 hover:underline">Resetear PIN</button>
-            </div>
+            ) : (
+              <div key={s.id} className="flex items-center justify-between py-2">
+                <div className="min-w-0">
+                  <div className="font-medium text-gray-800 truncate">{s.name}{s.age != null && <span className="text-gray-400 font-normal"> · {s.age}</span>}</div>
+                  <div className="text-xs text-gray-400 truncate">{s.email}</div>
+                </div>
+                <div className="flex gap-3 shrink-0 ml-2">
+                  <button onClick={() => startEdit(s)}
+                    className="text-sm text-gray-600 hover:underline">Editar</button>
+                  <button onClick={() => resetPin(s.id, s.name)}
+                    className="text-sm text-blue-600 hover:underline">PIN</button>
+                </div>
+              </div>
+            )
           ))}
           {students.length === 0 && <p className="text-gray-400 text-sm py-4">Aún no hay alumnos.</p>}
         </div>
