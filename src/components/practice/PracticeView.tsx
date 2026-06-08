@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { PracticeExercise, Badge } from '@/lib/types'
 import Celebration from '@/components/Celebration'
 import { recordProgress } from '@/lib/gamification'
+import { playCorrect, playWrong } from '@/lib/sound'
 
 interface Props {
   unitId: number
@@ -78,7 +79,8 @@ export default function PracticeView({ unitId, studentId }: Props) {
         ? norm(answer) === norm(ex.correct_answer) || (ex.payload.accept || []).some((a) => norm(a) === norm(answer))
         : norm(answer) === norm(ex.correct_answer)
     setAnswered(true); setIsCorrect(ok); setChosen(answer)
-    if (ok) { setScore((s) => s + 1); setXp((x) => x + ex.xp_reward) }
+    if (ok) { setScore((s) => s + 1); setXp((x) => x + ex.xp_reward); playCorrect() }
+    else playWrong()
   }
 
   // temporizador en niveles con tiempo

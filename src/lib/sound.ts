@@ -52,6 +52,19 @@ function play(notes: Tone[]) {
   }
 }
 
+/** Blip corto de acierto (refuerzo inmediato en práctica). */
+export function playCorrect() {
+  play([
+    { f: 880, t: 0, d: 0.1, g: 0.16, type: 'sine' },
+    { f: 1318.5, t: 0.07, d: 0.12, g: 0.16, type: 'sine' },
+  ])
+}
+
+/** Blip corto y suave de fallo (sin castigar, solo señal). */
+export function playWrong() {
+  play([{ f: 196, t: 0, d: 0.18, g: 0.14, type: 'triangle' }])
+}
+
 export type SoundKind = 'word' | 'topic' | 'level'
 
 /** Sonido según el logro: juguetón (palabra), medio (tema), triunfal (nivel). */

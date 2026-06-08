@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Topic, TopicExample, TopicPractice } from '@/lib/types'
 import Celebration from '@/components/Celebration'
 import { recordProgress } from '@/lib/gamification'
+import { playCorrect, playWrong } from '@/lib/sound'
 import { Badge } from '@/lib/types'
 
 interface Props {
@@ -54,7 +55,8 @@ export default function GrammarTopic({ topic, studentId, onComplete, onBack }: P
     if (answered) return
     setSelected(opt)
     setAnswered(true)
-    if (opt === q.correct_answer) setScore((s) => s + 1)
+    if (opt === q.correct_answer) { setScore((s) => s + 1); playCorrect() }
+    else playWrong()
   }
 
   const next = () => {
