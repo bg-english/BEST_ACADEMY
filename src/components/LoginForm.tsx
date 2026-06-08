@@ -23,7 +23,7 @@ export default function LoginForm({ onLogin }: Props) {
       .from('students')
       .select('*')
       .eq('email', email.toLowerCase())
-      .single()
+      .maybeSingle()
 
     if (existing) {
       onLogin(existing)

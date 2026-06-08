@@ -63,7 +63,7 @@ export default function ActivityModal({ unit, studentId, onClose }: Props) {
       .eq('student_id', studentId)
       .eq('unit_id', unit.id)
       .eq('area', activity.area)
-      .single()
+      .maybeSingle()
 
     if (existing) {
       const newTotal = existing.total_attempts + 1
