@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
   try {
     const msg = await client.messages.create({
       model: MODEL,
-      max_tokens: 400,
+      max_tokens: 220, // respuesta corta (JSON con feedback breve) → menor costo
       messages: [{ role: 'user', content: buildPrompt(body) }],
     })
 

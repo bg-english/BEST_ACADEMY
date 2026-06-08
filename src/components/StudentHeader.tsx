@@ -22,7 +22,7 @@ export default function StudentHeader({ student, level, onLogout }: Props) {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <div className="text-center">
             <div className="text-yellow-400 font-bold text-sm">{student.total_xp} XP</div>
             <div className="text-blue-300 text-xs">Total</div>

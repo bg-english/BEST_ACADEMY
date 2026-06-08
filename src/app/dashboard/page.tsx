@@ -237,11 +237,11 @@ export default function DashboardPage() {
                         <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                           {selectedStudent.name.charAt(0)}
                         </div>
-                        <div>
-                          <h2 className="text-xl font-bold text-gray-800">{selectedStudent.name}</h2>
-                          <p className="text-gray-500">{selectedStudent.email}</p>
+                        <div className="min-w-0">
+                          <h2 className="text-xl font-bold text-gray-800 truncate">{selectedStudent.name}</h2>
+                          <p className="text-gray-500 truncate">{selectedStudent.email}</p>
                         </div>
-                        <div className="ml-auto text-right">
+                        <div className="ml-auto text-right shrink-0">
                           <div className="text-2xl font-bold text-yellow-600">{selectedStudent.total_xp} XP</div>
                           <div className="text-sm text-orange-500">🔥 {selectedStudent.current_streak} day streak</div>
                         </div>

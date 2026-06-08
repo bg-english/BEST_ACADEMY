@@ -97,10 +97,10 @@ export default function HomePage() {
       <main className="container mx-auto px-4 py-8">
         {/* Welcome banner */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-white mb-2">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
             Welcome back, {student.name.split(' ')[0]}! 👋
           </h1>
-          <p className="text-blue-200 text-lg">Keep learning, keep growing!</p>
+          <p className="text-blue-200 text-base sm:text-lg">Keep learning, keep growing!</p>
           {student.current_streak > 0 && (
             <div className="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-full mt-3 font-semibold">
               🔥 {student.current_streak} day streak!
