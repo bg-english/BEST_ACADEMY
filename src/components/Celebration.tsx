@@ -1,6 +1,7 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { playCelebrationSound, isMuted, setMuted } from '@/lib/sound'
 
 interface Stat {
   label: string
@@ -22,6 +23,22 @@ const COLORS = ['#fbbf24', '#f97316', '#3b82f6', '#a855f7', '#22c55e', '#ef4444'
 export default function Celebration({
   show, emoji = '🎉', title, subtitle, stats, buttonLabel = '¡Seguir!', onClose,
 }: Props) {
+  const playedRef = useRef(false)
+  const [muted, setMutedState] = useState(false)
+
+  useEffect(() => { setMutedState(isMuted()) }, [])
+
+  useEffect(() => {
+    if (show && !playedRef.current) { playedRef.current = true; playCelebrationSound() }
+    if (!show) playedRef.current = false
+  }, [show])
+
+  const toggleMute = () => {
+    const next = !muted
+    setMuted(next)
+    setMutedState(next)
+  }
+
   // Generamos las piezas de confeti una sola vez por montaje
   const pieces = useMemo(
     () =>
@@ -59,6 +76,13 @@ export default function Celebration({
 
       {/* Tarjeta */}
       <div className="relative bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl pop-in">
+        <button
+          onClick={toggleMute}
+          title={muted ? 'Activar sonido' : 'Silenciar'}
+          className="absolute top-3 right-3 text-xl text-gray-400 hover:text-gray-600"
+        >
+          {muted ? '🔇' : '🔊'}
+        </button>
         <div className="text-7xl mb-3 emoji-bounce inline-block">{emoji}</div>
         <h2 className="text-2xl font-extrabold text-gray-800 mb-1">{title}</h2>
         {subtitle && <p className="text-gray-500 mb-2">{subtitle}</p>}
