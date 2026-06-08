@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Topic, TopicExample, TopicPractice } from '@/lib/types'
+import Celebration from '@/components/Celebration'
 
 interface Props {
   topic: Topic
@@ -136,19 +137,14 @@ export default function GrammarTopic({ topic, studentId, onComplete, onBack }: P
 
   // ---- DONE ----
   return (
-    <div className="max-w-md mx-auto text-center">
-      <div className="bg-white rounded-3xl p-8 shadow-2xl">
-        <div className="text-6xl mb-3">🎉</div>
-        <h2 className="text-2xl font-bold mb-2">¡Tema completado!</h2>
-        <p className="text-gray-500 mb-1">{topic.title}</p>
-        {practice.length > 0 && (
-          <p className="text-lg text-blue-600 font-bold mb-6">{score} / {practice.length} correctas</p>
-        )}
-        <button onClick={onBack}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:opacity-90">
-          Volver a temas
-        </button>
-      </div>
-    </div>
+    <Celebration
+      show
+      emoji="🎉"
+      title="¡Tema completado!"
+      subtitle={topic.title}
+      stats={practice.length > 0 ? [{ label: 'Correctas', value: `${score}/${practice.length}` }] : undefined}
+      buttonLabel="Volver a temas"
+      onClose={onBack}
+    />
   )
 }

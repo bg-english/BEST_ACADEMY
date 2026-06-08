@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { PracticeExercise } from '@/lib/types'
+import Celebration from '@/components/Celebration'
 
 interface Props {
   unitId: number
@@ -147,20 +148,15 @@ export default function PracticeView({ unitId, studentId }: Props) {
   if (view === 'levelDone') {
     const acc = Math.round((score / queue.length) * 100)
     return (
-      <div className="max-w-md mx-auto text-center">
-        <div className="bg-white rounded-3xl p-8 shadow-2xl">
-          <div className="text-6xl mb-3">{acc >= 80 ? '🏆' : acc >= 50 ? '👍' : '💪'}</div>
-          <h2 className="text-2xl font-bold mb-1">Nivel {level} completado</h2>
-          <div className="flex justify-center gap-6 my-5">
-            <div><div className="text-2xl font-bold text-green-600">{score}/{queue.length}</div><div className="text-xs text-gray-500">Aciertos</div></div>
-            <div><div className="text-2xl font-bold text-yellow-600">+{xp}</div><div className="text-xs text-gray-500">XP</div></div>
-          </div>
-          <button onClick={() => setView('map')}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:opacity-90">
-            Volver al mapa
-          </button>
-        </div>
-      </div>
+      <Celebration
+        show
+        emoji={acc >= 80 ? '🏆' : acc >= 50 ? '🎉' : '💪'}
+        title={acc >= 50 ? `¡Nivel ${level} completado!` : `¡Buen intento, nivel ${level}!`}
+        subtitle={acc >= 80 ? '¡Dominaste este nivel!' : acc >= 50 ? '¡Vas muy bien!' : 'Repite para mejorar, ¡tú puedes!'}
+        stats={[{ label: 'Aciertos', value: `${score}/${queue.length}` }, { label: 'XP', value: `+${xp}` }]}
+        buttonLabel="Volver al mapa"
+        onClose={() => setView('map')}
+      />
     )
   }
 

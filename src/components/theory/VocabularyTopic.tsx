@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Topic, VocabWord, GradeResult } from '@/lib/types'
+import Celebration from '@/components/Celebration'
 
 interface Props {
   topic: Topic
@@ -198,19 +199,19 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
           </>
         )}
 
-        {/* ETAPA 3: palabra dominada */}
         {stage === 'wordDone' && (
-          <div className="text-center py-4">
-            <div className="text-5xl mb-2">🌟</div>
-            <p className="text-xl font-bold text-gray-800 mb-1">¡Dominaste &quot;{word.word}&quot;!</p>
-            <p className="text-gray-500 mb-5">Excelente trabajo.</p>
-            <button onClick={nextWord}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:opacity-90">
-              {idx + 1 >= words.length ? 'Terminar tema ✅' : 'Siguiente palabra →'}
-            </button>
-          </div>
+          <p className="text-center text-gray-400 py-4">¡Palabra dominada! 🌟</p>
         )}
       </div>
+
+      <Celebration
+        show={stage === 'wordDone'}
+        emoji="🌟"
+        title={`¡Dominaste "${word.word}"!`}
+        subtitle="¡Excelente trabajo!"
+        buttonLabel={idx + 1 >= words.length ? 'Terminar tema ✅' : 'Siguiente palabra →'}
+        onClose={nextWord}
+      />
     </div>
   )
 }
