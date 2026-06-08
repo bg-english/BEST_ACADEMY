@@ -33,3 +33,6 @@ next-env.d.ts
 
 # claude code local agent files
 /.claude/
+
+# material de referencia con copyright (no publicar)
+/BACKUP/
