@@ -207,6 +207,7 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
       <Celebration
         show={stage === 'wordDone'}
         emoji="🌟"
+        sound="word"
         title={`¡Dominaste "${word.word}"!`}
         subtitle="¡Excelente trabajo!"
         buttonLabel={idx + 1 >= words.length ? 'Terminar tema ✅' : 'Siguiente palabra →'}

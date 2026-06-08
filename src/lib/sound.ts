@@ -24,43 +24,67 @@ export function setMuted(muted: boolean) {
   localStorage.setItem(MUTE_KEY, muted ? '1' : '0')
 }
 
-/** Arpegio mayor ascendente + brillito final: suena a "¡lo lograste!". */
-export function playCelebrationSound() {
+type Tone = { f: number; t: number; d: number; g?: number; type?: OscillatorType }
+
+function play(notes: Tone[]) {
   if (isMuted()) return
   try {
     const ac = getCtx()
     if (!ac) return
     if (ac.state === 'suspended') void ac.resume()
     const now = ac.currentTime
-
-    const notes = [523.25, 659.25, 783.99, 1046.5] // C5 E5 G5 C6
-    notes.forEach((freq, i) => {
+    for (const n of notes) {
       const osc = ac.createOscillator()
       const gain = ac.createGain()
-      osc.type = 'triangle'
-      osc.frequency.value = freq
-      const t = now + i * 0.1
+      osc.type = n.type || 'triangle'
+      osc.frequency.value = n.f
+      const t = now + n.t
+      const peak = n.g ?? 0.2
       gain.gain.setValueAtTime(0.0001, t)
-      gain.gain.exponentialRampToValueAtTime(0.22, t + 0.02)
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.26)
+      gain.gain.exponentialRampToValueAtTime(peak, t + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + n.d)
       osc.connect(gain).connect(ac.destination)
       osc.start(t)
-      osc.stop(t + 0.3)
-    })
-
-    // brillito final
-    const s = ac.createOscillator()
-    const sg = ac.createGain()
-    s.type = 'sine'
-    s.frequency.value = 1568 // G6
-    const ts = now + 0.42
-    sg.gain.setValueAtTime(0.0001, ts)
-    sg.gain.exponentialRampToValueAtTime(0.18, ts + 0.02)
-    sg.gain.exponentialRampToValueAtTime(0.0001, ts + 0.35)
-    s.connect(sg).connect(ac.destination)
-    s.start(ts)
-    s.stop(ts + 0.4)
+      osc.stop(t + n.d + 0.02)
+    }
   } catch {
     // audio bloqueado o no soportado: ignorar silenciosamente
+  }
+}
+
+export type SoundKind = 'word' | 'topic' | 'level'
+
+/** Sonido según el logro: juguetón (palabra), medio (tema), triunfal (nivel). */
+export function playCelebrationSound(kind: SoundKind = 'topic') {
+  if (kind === 'word') {
+    // corto y juguetón: 3 notas ascendentes
+    play([
+      { f: 659.25, t: 0, d: 0.16, g: 0.18, type: 'sine' },
+      { f: 783.99, t: 0.08, d: 0.16, g: 0.18, type: 'sine' },
+      { f: 1046.5, t: 0.16, d: 0.22, g: 0.2, type: 'sine' },
+    ])
+  } else if (kind === 'level') {
+    // fanfarria triunfal: arpegio + acorde final + brillo
+    play([
+      { f: 523.25, t: 0, d: 0.26, g: 0.22 },
+      { f: 659.25, t: 0.11, d: 0.26, g: 0.22 },
+      { f: 783.99, t: 0.22, d: 0.26, g: 0.22 },
+      { f: 1046.5, t: 0.33, d: 0.3, g: 0.24 },
+      // acorde C mayor sostenido
+      { f: 523.25, t: 0.55, d: 0.7, g: 0.14 },
+      { f: 659.25, t: 0.55, d: 0.7, g: 0.14 },
+      { f: 783.99, t: 0.55, d: 0.7, g: 0.14 },
+      { f: 1046.5, t: 0.55, d: 0.7, g: 0.14 },
+      { f: 1568.0, t: 0.6, d: 0.5, g: 0.14, type: 'sine' }, // brillo G6
+    ])
+  } else {
+    // tema: arpegio medio + brillito
+    play([
+      { f: 523.25, t: 0, d: 0.24, g: 0.2 },
+      { f: 659.25, t: 0.1, d: 0.24, g: 0.2 },
+      { f: 783.99, t: 0.2, d: 0.24, g: 0.2 },
+      { f: 1046.5, t: 0.3, d: 0.28, g: 0.22 },
+      { f: 1568.0, t: 0.42, d: 0.35, g: 0.16, type: 'sine' },
+    ])
   }
 }

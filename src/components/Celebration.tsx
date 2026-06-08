@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { playCelebrationSound, isMuted, setMuted } from '@/lib/sound'
+import { playCelebrationSound, isMuted, setMuted, SoundKind } from '@/lib/sound'
 
 interface Stat {
   label: string
@@ -15,13 +15,14 @@ interface Props {
   subtitle?: string
   stats?: Stat[]
   buttonLabel?: string
+  sound?: SoundKind
   onClose: () => void
 }
 
 const COLORS = ['#fbbf24', '#f97316', '#3b82f6', '#a855f7', '#22c55e', '#ef4444', '#ec4899']
 
 export default function Celebration({
-  show, emoji = '🎉', title, subtitle, stats, buttonLabel = '¡Seguir!', onClose,
+  show, emoji = '🎉', title, subtitle, stats, buttonLabel = '¡Seguir!', sound = 'topic', onClose,
 }: Props) {
   const playedRef = useRef(false)
   const [muted, setMutedState] = useState(false)
@@ -29,7 +30,7 @@ export default function Celebration({
   useEffect(() => { setMutedState(isMuted()) }, [])
 
   useEffect(() => {
-    if (show && !playedRef.current) { playedRef.current = true; playCelebrationSound() }
+    if (show && !playedRef.current) { playedRef.current = true; playCelebrationSound(sound) }
     if (!show) playedRef.current = false
   }, [show])
 

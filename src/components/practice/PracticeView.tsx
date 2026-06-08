@@ -150,6 +150,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
     return (
       <Celebration
         show
+        sound="level"
         emoji={acc >= 80 ? '🏆' : acc >= 50 ? '🎉' : '💪'}
         title={acc >= 50 ? `¡Nivel ${level} completado!` : `¡Buen intento, nivel ${level}!`}
         subtitle={acc >= 80 ? '¡Dominaste este nivel!' : acc >= 50 ? '¡Vas muy bien!' : 'Repite para mejorar, ¡tú puedes!'}
