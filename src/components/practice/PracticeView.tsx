@@ -38,6 +38,8 @@ export default function PracticeView({ unitId, studentId }: Props) {
   const [score, setScore] = useState(0)
   const [xp, setXp] = useState(0)
   const [newBadges, setNewBadges] = useState<Badge[]>([])
+  const [reviewMode, setReviewMode] = useState(false)
+  const [reviewCount, setReviewCount] = useState(0)
 
   // estado por ejercicio
   const [answered, setAnswered] = useState(false)
@@ -81,6 +83,40 @@ export default function PracticeView({ unitId, studentId }: Props) {
     setAnswered(true); setIsCorrect(ok); setChosen(answer)
     if (ok) { setScore((s) => s + 1); setXp((x) => x + ex.xp_reward); playCorrect() }
     else playWrong()
+    // Registrar el intento (para el repaso de errores). Fire-and-forget.
+    supabase.from('student_practice_attempts').insert({ student_id: studentId, exercise_id: ex.id, is_correct: ok })
+  }
+
+  // Calcula los ejercicios a repasar: aquellos cuyo ÚLTIMO intento fue incorrecto
+  const computeReview = useCallback(async (): Promise<PracticeExercise[]> => {
+    const { data: att } = await supabase
+      .from('student_practice_attempts')
+      .select('exercise_id, is_correct, created_at')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: true })
+    if (!att || att.length === 0) return []
+    const latest: Record<number, boolean> = {}
+    att.forEach((a: { exercise_id: number; is_correct: boolean }) => { latest[a.exercise_id] = a.is_correct })
+    const wrongIds = new Set(Object.entries(latest).filter(([, ok]) => !ok).map(([id]) => Number(id)))
+    return exercises.filter((e) => wrongIds.has(e.id))
+  }, [studentId, exercises])
+
+  useEffect(() => {
+    if (exercises.length) computeReview().then((r) => setReviewCount(r.length))
+  }, [exercises, computeReview])
+
+  const startReview = async () => {
+    const q = await computeReview()
+    if (q.length === 0) return
+    setReviewMode(true); setQueue(q); setIdx(0); setScore(0); setXp(0); setView('play')
+    setupExercise(q[0])
+  }
+
+  const goMap = async () => {
+    setReviewMode(false)
+    setView('map')
+    const r = await computeReview()
+    setReviewCount(r.length)
   }
 
   // temporizador en niveles con tiempo
@@ -94,6 +130,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
   const PASS_PCT = 60
 
   const finishLevel = async () => {
+    if (reviewMode) return // el repaso no cambia niveles ni otorga XP
     const acc = queue.length ? Math.round((score / queue.length) * 100) : 0
     const passed = acc >= PASS_PCT
     const firstTime = level > levelReached
@@ -152,15 +189,35 @@ export default function PracticeView({ unitId, studentId }: Props) {
             )
           })}
         </div>
+
+        {reviewCount > 0 && (
+          <button onClick={startReview}
+            className="mt-5 w-full bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold py-3 rounded-2xl shadow-lg transition">
+            🔁 Repasar mis errores ({reviewCount})
+          </button>
+        )}
       </div>
     )
   }
 
-  // ---- NIVEL COMPLETADO ----
+  // ---- NIVEL / REPASO COMPLETADO ----
   if (view === 'levelDone') {
     const acc = queue.length ? Math.round((score / queue.length) * 100) : 0
+    if (reviewMode) {
+      return (
+        <Celebration
+          show
+          sound="topic"
+          emoji={acc >= 80 ? '🌟' : '💪'}
+          title="¡Repaso completado!"
+          subtitle={acc >= 80 ? '¡Cada vez lo dominas más!' : '¡Sigue repasando, vas mejorando!'}
+          stats={[{ label: 'Aciertos', value: `${score}/${queue.length} (${acc}%)` }]}
+          buttonLabel="Volver al mapa"
+          onClose={goMap}
+        />
+      )
+    }
     const passed = acc >= 60
-    const unlockedNext = passed
     return (
       <Celebration
         show
@@ -169,13 +226,13 @@ export default function PracticeView({ unitId, studentId }: Props) {
         title={passed ? `¡Nivel ${level} superado!` : `¡Casi, nivel ${level}!`}
         subtitle={
           acc >= 80 ? '¡Dominaste este nivel!'
-          : passed ? (unlockedNext ? '¡Siguiente nivel desbloqueado!' : '¡Vas muy bien!')
+          : passed ? '¡Siguiente nivel desbloqueado!'
           : 'Necesitas 60% para desbloquear el siguiente nivel. ¡Inténtalo otra vez, tú puedes!'
         }
         stats={[{ label: 'Aciertos', value: `${score}/${queue.length} (${acc}%)` }, { label: 'XP', value: `+${xp}` }]}
         badges={newBadges.map((b) => ({ name: b.name, icon: b.icon }))}
         buttonLabel="Volver al mapa"
-        onClose={() => setView('map')}
+        onClose={goMap}
       />
     )
   }
@@ -184,10 +241,10 @@ export default function PracticeView({ unitId, studentId }: Props) {
   if (!ex) return null
   return (
     <div className="max-w-2xl mx-auto">
-      <button onClick={() => setView('map')} className="text-blue-200 hover:text-white mb-3">← Salir</button>
+      <button onClick={goMap} className="text-blue-200 hover:text-white mb-3">← Salir</button>
       <div className="bg-white rounded-3xl p-5 shadow-2xl">
         <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
-          <span>Nivel {level} · {idx + 1}/{queue.length}</span>
+          <span>{reviewMode ? '🔁 Repaso' : `Nivel ${level}`} · {idx + 1}/{queue.length}</span>
           <span className="capitalize">{ex.area}</span>
           {timeLeft !== null && (
             <span className={`font-bold ${timeLeft <= 3 ? 'text-red-500' : 'text-blue-600'}`}>⏱️ {timeLeft}s</span>
