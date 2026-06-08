@@ -279,6 +279,10 @@ function ManageStudents({ students, onChanged }: { students: Student[]; onChange
   const [pin, setPin] = useState('')
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
+  const [bulkText, setBulkText] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importResult, setImportResult] = useState<{ name: string; pin: string }[] | null>(null)
+  const [importSkipped, setImportSkipped] = useState<{ name: string; reason: string }[]>([])
 
   const authHeader = async () => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -304,6 +308,38 @@ function ManageStudents({ students, onChanged }: { students: Student[]; onChange
     } else setMsg(`❌ ${json.error}`)
   }
 
+  const importBulk = async () => {
+    setMsg('')
+    setImportResult(null)
+    setImportSkipped([])
+    // Cada línea: "Nombre" o "Nombre, edad"
+    const list = bulkText
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const parts = line.split(',')
+        const name = parts[0].trim()
+        const age = parts[1] ? Number(parts[1].trim()) : null
+        return { name, age }
+      })
+      .filter((s) => s.name)
+    if (list.length === 0) { setMsg('Pega al menos un alumno.'); return }
+    setImporting(true)
+    const res = await fetch('/api/students/import', {
+      method: 'POST',
+      headers: await authHeader(),
+      body: JSON.stringify({ students: list }),
+    })
+    const json = await res.json()
+    setImporting(false)
+    if (res.ok) {
+      setImportResult(json.created || [])
+      setImportSkipped(json.skipped || [])
+      onChanged()
+    } else setMsg(`❌ ${json.error}`)
+  }
+
   const resetPin = async (studentId: string, studentName: string) => {
     const newPin = prompt(`Nuevo PIN para ${studentName} (4-8 dígitos):`)
     if (!newPin) return
@@ -317,6 +353,7 @@ function ManageStudents({ students, onChanged }: { students: Student[]; onChange
   }
 
   return (
+    <div className="space-y-8">
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="bg-white rounded-2xl p-6 shadow">
         <h3 className="text-lg font-bold text-gray-800 mb-4">Nuevo alumno</h3>
@@ -351,6 +388,47 @@ function ManageStudents({ students, onChanged }: { students: Student[]; onChange
           {students.length === 0 && <p className="text-gray-400 text-sm py-4">Aún no hay alumnos.</p>}
         </div>
       </div>
+    </div>
+
+    <div className="bg-white rounded-2xl p-6 shadow">
+      <h3 className="text-lg font-bold text-gray-800 mb-2">Importar lista de clase</h3>
+      <p className="text-sm text-gray-500 mb-3">
+        Un alumno por línea. Formato: <code>Nombre completo, edad</code> (la edad es opcional).
+        Se genera un PIN aleatorio para cada uno.
+      </p>
+      <textarea
+        value={bulkText}
+        onChange={(e) => setBulkText(e.target.value)}
+        rows={8}
+        placeholder={'Maria Garcia, 12\nJuan Perez, 13\nAna Lopez'}
+        className="w-full border rounded-xl px-4 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button onClick={importBulk} disabled={importing}
+        className="mt-3 bg-purple-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-purple-700 transition disabled:opacity-50">
+        {importing ? 'Importando…' : 'Importar alumnos'}
+      </button>
+
+      {importResult && (
+        <div className="mt-4">
+          <p className="font-semibold text-green-700 mb-2">
+            ✅ {importResult.length} alumnos creados. Guarda estos PINs y repártelos:
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+            {importResult.map((r) => (
+              <div key={r.name} className="flex justify-between bg-gray-50 rounded px-3 py-1">
+                <span className="truncate mr-2">{r.name}</span>
+                <span className="font-mono font-bold">{r.pin}</span>
+              </div>
+            ))}
+          </div>
+          {importSkipped.length > 0 && (
+            <p className="text-xs text-amber-600 mt-3">
+              Omitidos: {importSkipped.map((s) => `${s.name} (${s.reason})`).join(', ')}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
     </div>
   )
 }
