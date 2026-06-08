@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Topic, VocabWord, GradeResult } from '@/lib/types'
 import Celebration from '@/components/Celebration'
+import { awardXp } from '@/lib/xp'
 
 interface Props {
   topic: Topic
@@ -12,13 +13,24 @@ interface Props {
   onBack: () => void
 }
 
-async function grade(body: object): Promise<GradeResult | { error: string }> {
-  const res = await fetch('/api/grade', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-  return res.json()
+type Result = GradeResult & { infra?: boolean }
+
+async function grade(body: object): Promise<Result> {
+  try {
+    const res = await fetch('/api/grade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    const json = await res.json()
+    if (!res.ok || json?.error) {
+      // Fallo de infraestructura (API caída, sin saldo, sin key): no atrapar al alumno
+      return { correct: false, infra: true, feedback: 'No pudimos verificar ahora mismo, pero puedes continuar. 🙂', suggestion: '' }
+    }
+    return json as Result
+  } catch {
+    return { correct: false, infra: true, feedback: 'Sin conexión con el calificador. Puedes continuar.', suggestion: '' }
+  }
 }
 
 export default function VocabularyTopic({ topic, studentId, onComplete, onBack }: Props) {
@@ -29,12 +41,12 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
   // definición
   const [definition, setDefinition] = useState('')
   const [defBusy, setDefBusy] = useState(false)
-  const [defFeedback, setDefFeedback] = useState<GradeResult | null>(null)
+  const [defFeedback, setDefFeedback] = useState<Result | null>(null)
   const [examples, setExamples] = useState<string[]>([])
 
   // oraciones
   const [sentences, setSentences] = useState<string[]>(['', '', '', '', ''])
-  const [sentResults, setSentResults] = useState<(GradeResult | null)[]>([null, null, null, null, null])
+  const [sentResults, setSentResults] = useState<(Result | null)[]>([null, null, null, null, null])
   const [sentBusy, setSentBusy] = useState(false)
 
   useEffect(() => {
@@ -56,7 +68,6 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
     setDefBusy(true)
     const r = await grade({ task: 'definition', word: word.word, partOfSpeech: word.part_of_speech, wordId: word.id, studentText: definition.trim() })
     setDefBusy(false)
-    if ('error' in r) { setDefFeedback({ correct: false, feedback: r.error, suggestion: '' }); return }
     setDefFeedback(r)
     if (r.correct) {
       setExamples(r.examples || [])
@@ -69,20 +80,20 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
 
   const submitSentences = async () => {
     setSentBusy(true)
-    const results = await Promise.all(
+    const results: Result[] = await Promise.all(
       sentences.map((s) =>
         s.trim()
           ? grade({ task: 'sentence', word: word.word, partOfSpeech: word.part_of_speech, studentText: s.trim() })
-          : Promise.resolve({ correct: false, feedback: 'Escribe una oración aquí.', suggestion: '' } as GradeResult)
+          : Promise.resolve({ correct: false, feedback: 'Escribe una oración aquí.', suggestion: '' } as Result)
       )
     )
-    const norm = results.map((r) => ('error' in r ? { correct: false, feedback: r.error, suggestion: '' } : r))
-    setSentResults(norm)
+    setSentResults(results)
     setSentBusy(false)
-    const allOk = norm.every((r) => r.correct)
+    // Avanza si todas están correctas, o si el calificador no estaba disponible (no atrapar al alumno)
+    const allOk = results.every((r) => r.correct || r.infra)
     if (allOk) {
       await supabase.from('student_vocab').upsert(
-        { student_id: studentId, word_id: word.id, sentences, sentences_ok: true, updated_at: new Date().toISOString() },
+        { student_id: studentId, word_id: word.id, sentences, sentences_ok: results.every((r) => r.correct), updated_at: new Date().toISOString() },
         { onConflict: 'student_id,word_id' }
       )
       setStage('wordDone')
@@ -91,10 +102,14 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
 
   const nextWord = async () => {
     if (idx + 1 >= words.length) {
+      const { data: existing } = await supabase
+        .from('student_topic_progress')
+        .select('completed').eq('student_id', studentId).eq('topic_id', topic.id).maybeSingle()
       await supabase.from('student_topic_progress').upsert(
         { student_id: studentId, topic_id: topic.id, completed: true, completed_at: new Date().toISOString() },
         { onConflict: 'student_id,topic_id' }
       )
+      if (!existing?.completed) await awardXp(studentId, 40) // XP solo la primera vez
       onComplete()
     } else {
       setIdx((i) => i + 1)
@@ -136,12 +151,17 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500"
             />
             {defFeedback && (
-              <div className={`mt-3 p-4 rounded-xl ${defFeedback.correct ? 'bg-green-50' : 'bg-amber-50'}`}>
-                <p className="font-semibold mb-1">{defFeedback.correct ? '🎉 ¡Correcto!' : '💪 ¡Inténtalo otra vez!'}</p>
+              <div className={`mt-3 p-4 rounded-xl ${defFeedback.correct ? 'bg-green-50' : defFeedback.infra ? 'bg-blue-50' : 'bg-amber-50'}`}>
+                <p className="font-semibold mb-1">{defFeedback.correct ? '🎉 ¡Correcto!' : defFeedback.infra ? 'ℹ️ Aviso' : '💪 ¡Inténtalo otra vez!'}</p>
                 <p className="text-sm text-gray-700">{defFeedback.feedback}</p>
               </div>
             )}
-            {!defFeedback?.correct ? (
+            {defFeedback?.infra ? (
+              <button onClick={() => setStage('sentences')}
+                className="mt-4 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:opacity-90">
+                Continuar de todos modos →
+              </button>
+            ) : !defFeedback?.correct ? (
               <button onClick={submitDefinition} disabled={defBusy}
                 className="mt-4 w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">
                 {defBusy ? 'Revisando…' : 'Revisar significado'}
@@ -176,7 +196,7 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
             <div className="space-y-2">
               {sentences.map((s, i) => {
                 const r = sentResults[i]
-                const border = r ? (r.correct ? 'border-green-500' : 'border-red-400') : 'border-gray-200'
+                const border = r ? (r.correct ? 'border-green-500' : r.infra ? 'border-blue-400' : 'border-red-400') : 'border-gray-200'
                 return (
                   <div key={i}>
                     <input

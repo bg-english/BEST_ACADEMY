@@ -87,14 +87,24 @@ export default function PracticeView({ unitId, studentId }: Props) {
     return () => clearTimeout(t)
   }, [timeLeft, answered, view]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const PASS_PCT = 60
+
   const finishLevel = async () => {
-    // guardar intentos + estadística
-    const attempts = queue.map((e, i) => ({
-      student_id: studentId, exercise_id: e.id,
-      is_correct: i < idx ? true : isCorrect, // aproximación: el último refleja el actual
-    }))
-    void attempts // (registro detallado opcional; guardamos al menos la estadística)
-    const newReached = Math.max(levelReached, level)
+    const acc = queue.length ? Math.round((score / queue.length) * 100) : 0
+    const passed = acc >= PASS_PCT
+    const firstTime = level > levelReached
+    // Solo se desbloquea el siguiente nivel si DEMUESTRA dominio (>= 60%)
+    const newReached = passed && firstTime ? level : levelReached
+
+    // XP real: solo la primera vez que se aprueba un nivel (evita "farmear" repitiendo)
+    if (passed && firstTime && xp > 0) {
+      const { data: s } = await supabase.from('students').select('total_xp').eq('id', studentId).maybeSingle()
+      if (s) {
+        const newXp = (s.total_xp || 0) + xp
+        await supabase.from('students').update({ total_xp: newXp, level: Math.floor(newXp / 100) + 1 }).eq('id', studentId)
+      }
+    }
+
     await supabase.from('student_practice_stats').upsert(
       { student_id: studentId, unit_id: unitId, area: 'all', level_reached: newReached,
         total_correct: score, total_answered: queue.length, updated_at: new Date().toISOString() },
@@ -146,15 +156,21 @@ export default function PracticeView({ unitId, studentId }: Props) {
 
   // ---- NIVEL COMPLETADO ----
   if (view === 'levelDone') {
-    const acc = Math.round((score / queue.length) * 100)
+    const acc = queue.length ? Math.round((score / queue.length) * 100) : 0
+    const passed = acc >= 60
+    const unlockedNext = passed
     return (
       <Celebration
         show
         sound="level"
-        emoji={acc >= 80 ? '🏆' : acc >= 50 ? '🎉' : '💪'}
-        title={acc >= 50 ? `¡Nivel ${level} completado!` : `¡Buen intento, nivel ${level}!`}
-        subtitle={acc >= 80 ? '¡Dominaste este nivel!' : acc >= 50 ? '¡Vas muy bien!' : 'Repite para mejorar, ¡tú puedes!'}
-        stats={[{ label: 'Aciertos', value: `${score}/${queue.length}` }, { label: 'XP', value: `+${xp}` }]}
+        emoji={acc >= 80 ? '🏆' : passed ? '🎉' : '💪'}
+        title={passed ? `¡Nivel ${level} superado!` : `¡Casi, nivel ${level}!`}
+        subtitle={
+          acc >= 80 ? '¡Dominaste este nivel!'
+          : passed ? (unlockedNext ? '¡Siguiente nivel desbloqueado!' : '¡Vas muy bien!')
+          : 'Necesitas 60% para desbloquear el siguiente nivel. ¡Inténtalo otra vez, tú puedes!'
+        }
+        stats={[{ label: 'Aciertos', value: `${score}/${queue.length} (${acc}%)` }, { label: 'XP', value: `+${xp}` }]}
         buttonLabel="Volver al mapa"
         onClose={() => setView('map')}
       />

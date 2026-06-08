@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Unit, Student, StudentProgress, Badge } from '@/lib/types'
+import { Unit, Student, Badge } from '@/lib/types'
 import UnitCard from '@/components/UnitCard'
 import StudentHeader from '@/components/StudentHeader'
 import BadgeDisplay from '@/components/BadgeDisplay'
@@ -11,7 +11,7 @@ import LoginForm from '@/components/LoginForm'
 export default function HomePage() {
   const [student, setStudent] = useState<Student | null>(null)
   const [units, setUnits] = useState<Unit[]>([])
-  const [progress, setProgress] = useState<StudentProgress[]>([])
+  const [unitPct, setUnitPct] = useState<Record<number, number>>({})
   const [badges, setBadges] = useState<Badge[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -42,11 +42,18 @@ export default function HomePage() {
   }
 
   const loadStudentData = async (studentId: string) => {
-    const { data: progressData } = await supabase
-      .from('student_progress')
-      .select('*')
+    // Progreso por unidad desde el modelo nuevo (nivel de práctica alcanzado, sobre 6 niveles)
+    const { data: stats } = await supabase
+      .from('student_practice_stats')
+      .select('unit_id, level_reached')
       .eq('student_id', studentId)
-    if (progressData) setProgress(progressData)
+    const map: Record<number, number> = {}
+    if (stats) {
+      stats.forEach((s: { unit_id: number; level_reached: number }) => {
+        map[s.unit_id] = Math.min(100, Math.round((s.level_reached / 6) * 100))
+      })
+    }
+    setUnitPct(map)
 
     const { data: badgeData } = await supabase
       .from('student_badges')
@@ -63,16 +70,11 @@ export default function HomePage() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setStudent(null)
-    setProgress([])
+    setUnitPct({})
     setBadges([])
   }
 
-  const getUnitProgress = (unitId: number) => {
-    const unitProgress = progress.filter(p => p.unit_id === unitId)
-    if (unitProgress.length === 0) return 0
-    const avg = unitProgress.reduce((sum, p) => sum + (p.accuracy_percentage || 0), 0) / unitProgress.length
-    return Math.round(avg)
-  }
+  const getUnitProgress = (unitId: number) => unitPct[unitId] || 0
 
   if (loading) {
     return (
@@ -131,7 +133,7 @@ export default function HomePage() {
                 key={unit.id}
                 unit={unit}
                 progress={getUnitProgress(unit.id)}
-                isUnlocked={index === 0 || getUnitProgress(units[index - 1]?.id) >= 60}
+                isUnlocked={true}
                 studentId={student.id}
                 onComplete={() => loadStudentData(student.id)}
               />

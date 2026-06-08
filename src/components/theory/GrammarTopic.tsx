@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Topic, TopicExample, TopicPractice } from '@/lib/types'
 import Celebration from '@/components/Celebration'
+import { awardXp } from '@/lib/xp'
 
 interface Props {
   topic: Topic
@@ -31,10 +32,14 @@ export default function GrammarTopic({ topic, studentId, onComplete, onBack }: P
   }, [topic.id])
 
   const markComplete = async () => {
+    const { data: existing } = await supabase
+      .from('student_topic_progress')
+      .select('completed').eq('student_id', studentId).eq('topic_id', topic.id).maybeSingle()
     await supabase.from('student_topic_progress').upsert(
       { student_id: studentId, topic_id: topic.id, completed: true, completed_at: new Date().toISOString() },
       { onConflict: 'student_id,topic_id' }
     )
+    if (!existing?.completed) await awardXp(studentId, 30) // XP solo la primera vez
     onComplete()
   }
 
