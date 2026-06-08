@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Topic, TopicExample, TopicPractice } from '@/lib/types'
 import Celebration from '@/components/Celebration'
-import { awardXp } from '@/lib/xp'
+import { recordProgress } from '@/lib/gamification'
+import { Badge } from '@/lib/types'
 
 interface Props {
   topic: Topic
@@ -23,6 +24,7 @@ export default function GrammarTopic({ topic, studentId, onComplete, onBack }: P
   const [selected, setSelected] = useState<string | null>(null)
   const [answered, setAnswered] = useState(false)
   const [score, setScore] = useState(0)
+  const [newBadges, setNewBadges] = useState<Badge[]>([])
 
   useEffect(() => {
     supabase.from('topic_examples').select('*').eq('topic_id', topic.id).order('order_index')
@@ -39,7 +41,10 @@ export default function GrammarTopic({ topic, studentId, onComplete, onBack }: P
       { student_id: studentId, topic_id: topic.id, completed: true, completed_at: new Date().toISOString() },
       { onConflict: 'student_id,topic_id' }
     )
-    if (!existing?.completed) await awardXp(studentId, 30) // XP solo la primera vez
+    if (!existing?.completed) {
+      const { newBadges } = await recordProgress(studentId, 30) // XP + racha + logros, solo la 1ª vez
+      setNewBadges(newBadges)
+    }
     onComplete()
   }
 
@@ -148,6 +153,7 @@ export default function GrammarTopic({ topic, studentId, onComplete, onBack }: P
       title="¡Tema completado!"
       subtitle={topic.title}
       stats={practice.length > 0 ? [{ label: 'Correctas', value: `${score}/${practice.length}` }] : undefined}
+      badges={newBadges.map((b) => ({ name: b.name, icon: b.icon }))}
       buttonLabel="Volver a temas"
       onClose={onBack}
     />

@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { PracticeExercise } from '@/lib/types'
+import { PracticeExercise, Badge } from '@/lib/types'
 import Celebration from '@/components/Celebration'
+import { recordProgress } from '@/lib/gamification'
 
 interface Props {
   unitId: number
@@ -35,6 +36,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
   const [xp, setXp] = useState(0)
+  const [newBadges, setNewBadges] = useState<Badge[]>([])
 
   // estado por ejercicio
   const [answered, setAnswered] = useState(false)
@@ -96,21 +98,19 @@ export default function PracticeView({ unitId, studentId }: Props) {
     // Solo se desbloquea el siguiente nivel si DEMUESTRA dominio (>= 60%)
     const newReached = passed && firstTime ? level : levelReached
 
-    // XP real: solo la primera vez que se aprueba un nivel (evita "farmear" repitiendo)
-    if (passed && firstTime && xp > 0) {
-      const { data: s } = await supabase.from('students').select('total_xp').eq('id', studentId).maybeSingle()
-      if (s) {
-        const newXp = (s.total_xp || 0) + xp
-        await supabase.from('students').update({ total_xp: newXp, level: Math.floor(newXp / 100) + 1 }).eq('id', studentId)
-      }
-    }
-
+    // Guardar estadística primero (para que los logros vean el nivel alcanzado)
     await supabase.from('student_practice_stats').upsert(
       { student_id: studentId, unit_id: unitId, area: 'all', level_reached: newReached,
         total_correct: score, total_answered: queue.length, updated_at: new Date().toISOString() },
       { onConflict: 'student_id,unit_id,area' }
     )
     setLevelReached(newReached)
+
+    // XP + racha + logros: solo la primera vez que se aprueba un nivel (evita "farmear")
+    if (passed && firstTime && xp > 0) {
+      const { newBadges } = await recordProgress(studentId, xp)
+      setNewBadges(newBadges)
+    }
   }
 
   const next = () => {
@@ -171,6 +171,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
           : 'Necesitas 60% para desbloquear el siguiente nivel. ¡Inténtalo otra vez, tú puedes!'
         }
         stats={[{ label: 'Aciertos', value: `${score}/${queue.length} (${acc}%)` }, { label: 'XP', value: `+${xp}` }]}
+        badges={newBadges.map((b) => ({ name: b.name, icon: b.icon }))}
         buttonLabel="Volver al mapa"
         onClose={() => setView('map')}
       />

@@ -8,12 +8,18 @@ interface Stat {
   value: string | number
 }
 
+interface BadgeLite {
+  name: string
+  icon?: string
+}
+
 interface Props {
   show: boolean
   emoji?: string
   title: string
   subtitle?: string
   stats?: Stat[]
+  badges?: BadgeLite[]
   buttonLabel?: string
   sound?: SoundKind
   onClose: () => void
@@ -22,7 +28,7 @@ interface Props {
 const COLORS = ['#fbbf24', '#f97316', '#3b82f6', '#a855f7', '#22c55e', '#ef4444', '#ec4899']
 
 export default function Celebration({
-  show, emoji = '🎉', title, subtitle, stats, buttonLabel = '¡Seguir!', sound = 'topic', onClose,
+  show, emoji = '🎉', title, subtitle, stats, badges, buttonLabel = '¡Seguir!', sound = 'topic', onClose,
 }: Props) {
   const playedRef = useRef(false)
   const [muted, setMutedState] = useState(false)
@@ -96,6 +102,19 @@ export default function Celebration({
                 <div className="text-xs text-gray-500">{s.label}</div>
               </div>
             ))}
+          </div>
+        )}
+
+        {badges && badges.length > 0 && (
+          <div className="my-4 rounded-2xl bg-amber-50 border border-amber-200 p-3">
+            <p className="text-sm font-bold text-amber-700 mb-2">🏅 ¡Nueva{badges.length > 1 ? 's' : ''} insignia{badges.length > 1 ? 's' : ''}!</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {badges.map((b) => (
+                <span key={b.name} className="inline-flex items-center gap-1 bg-white rounded-full px-3 py-1 text-sm font-medium text-gray-700 shadow">
+                  <span>{b.icon}</span>{b.name}
+                </span>
+              ))}
+            </div>
           </div>
         )}
 

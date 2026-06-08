@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Topic, VocabWord, GradeResult } from '@/lib/types'
 import Celebration from '@/components/Celebration'
-import { awardXp } from '@/lib/xp'
+import { recordProgress } from '@/lib/gamification'
 
 interface Props {
   topic: Topic
@@ -109,7 +109,7 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
         { student_id: studentId, topic_id: topic.id, completed: true, completed_at: new Date().toISOString() },
         { onConflict: 'student_id,topic_id' }
       )
-      if (!existing?.completed) await awardXp(studentId, 40) // XP solo la primera vez
+      if (!existing?.completed) await recordProgress(studentId, 40) // XP + racha + logros, solo la 1ª vez
       onComplete()
     } else {
       setIdx((i) => i + 1)
