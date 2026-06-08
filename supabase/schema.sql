@@ -214,31 +214,47 @@ grant execute on function public.class_roster() to anon, authenticated;
 -- 7) Datos semilla de CONTENIDO (idempotente) ------------------
 insert into units (number, title, description, duration_hours, xp_reward)
 select * from (values
-  (1, 'Greetings & Introductions', 'Say hello, introduce yourself and ask basic questions.', 2, 100),
-  (2, 'School & Classroom',        'Classroom objects, instructions and school vocabulary.',  2, 100),
-  (3, 'Family & Friends',          'Talk about your family, friends and relationships.',       2, 100),
-  (4, 'Daily Routine & Time',      'Tell the time and describe your everyday routine.',        2, 100)
+  (1, 'Getting to Know You', 'The verb to be, the alphabet, personal information and classroom English.', 6, 100),
+  (2, 'My Classroom', 'The verb to be, a/an articles, demonstratives, nationalities and classroom objects.', 6, 100),
+  (3, 'My Family', 'Possessive adjectives and pronouns, family members, adjectives and telling the time.', 10, 100),
+  (4, 'A Normal Day', 'Present simple, daily routines, parts of the house and life styles.', 7, 100)
 ) as v(number,title,description,duration_hours,xp_reward)
 where not exists (select 1 from units);
 
 insert into activities (unit_id, area, type, difficulty, xp_reward, question, options, correct_answer, explanation)
 select * from (values
-  (1,'vocabulary','multiple_choice',1,10,'Which word is a greeting?', '["Hello","Table","Blue","Run"]'::jsonb,'Hello','"Hello" is a common greeting.'),
-  (1,'grammar','multiple_choice',1,10,'Complete: "___ name is Ana."', '["My","Me","I","Mine"]'::jsonb,'My','We use the possessive "My" before a noun.'),
-  (1,'grammar','multiple_choice',2,15,'Choose the correct question: ', '["What is your name?","What you name?","Your name what?","Name your what?"]'::jsonb,'What is your name?','Correct word order for a Wh- question.'),
-  (1,'listening','multiple_choice',1,10,'A person says "Goodbye". What do they mean?', '["They are leaving","They are hungry","They are happy","They are tired"]'::jsonb,'They are leaving','"Goodbye" is said when leaving.'),
-  (2,'vocabulary','multiple_choice',1,10,'You write with a...', '["pen","door","window","floor"]'::jsonb,'pen','A pen is used to write.'),
-  (2,'vocabulary','multiple_choice',1,10,'Where do students sit?', '["chair","cloud","river","shoe"]'::jsonb,'chair','Students sit on a chair.'),
-  (2,'grammar','multiple_choice',2,15,'Plural of "book": ', '["books","bookes","book","bookz"]'::jsonb,'books','Regular plural adds -s.'),
-  (2,'writing','multiple_choice',2,15,'Which sentence is correct?', '["I have a pencil.","I has a pencil.","I having pencil.","Me have pencil."]'::jsonb,'I have a pencil.','Subject + have + object.'),
-  (3,'vocabulary','multiple_choice',1,10,'Your mother''s son is your...', '["brother","sister","father","cousin"]'::jsonb,'brother','Your mother''s son is your brother.'),
-  (3,'grammar','multiple_choice',2,15,'Complete: "She ___ two sisters."', '["has","have","is","are"]'::jsonb,'has','Third person singular uses "has".'),
-  (3,'speaking','multiple_choice',1,10,'How do you ask about family size?', '["How many people are in your family?","How much family you?","Family how big?","You family many?"]'::jsonb,'How many people are in your family?','Correct, natural question form.'),
-  (3,'writing','multiple_choice',2,15,'Choose the correct sentence:', '["My family is big.","My family are big number.","Family my big.","Is big my family."]'::jsonb,'My family is big.','Subject + verb + adjective.'),
-  (4,'vocabulary','multiple_choice',1,10,'What time concept is "morning"?', '["Early in the day","Late at night","A type of food","A place"]'::jsonb,'Early in the day','Morning is the early part of the day.'),
-  (4,'grammar','multiple_choice',2,15,'Complete: "I ___ up at 7 a.m."', '["get","gets","getting","got up now"]'::jsonb,'get','Present simple, first person: "I get up".'),
-  (4,'listening','multiple_choice',2,15,'"It''s half past six." What time is it?', '["6:30","6:15","5:30","7:00"]'::jsonb,'6:30','"Half past six" = 6:30.'),
-  (4,'speaking','multiple_choice',1,10,'Ask the time politely:', '["What time is it, please?","Time what is?","You have time what?","Is what the time you?"]'::jsonb,'What time is it, please?','Natural, polite question form.')
+  (1,'grammar','multiple_choice',1,10,'Complete: "I ___ a student."', '["am","is","are","be"]'::jsonb,'am','With the pronoun ''I'' we always use ''am''.'),
+  (1,'grammar','multiple_choice',1,10,'Complete: "She ___ from Italy."', '["is","am","are","be"]'::jsonb,'is','Third person singular (she/he/it) uses ''is''.'),
+  (1,'grammar','multiple_choice',2,15,'Choose the correct contraction of "you are":', '["you''re","your","youre","you''s"]'::jsonb,'you''re','''you are'' contracts to ''you''re''.'),
+  (1,'grammar','multiple_choice',2,15,'Complete: "They ___ not teachers."', '["are","is","am","be"]'::jsonb,'are','''They'' uses ''are'' (negative: aren''t).'),
+  (1,'vocabulary','multiple_choice',1,10,'In class, what does "circle" mean?', '["Draw a circle around a word","Speak aloud","Sit down","Close your book"]'::jsonb,'Draw a circle around a word','To ''circle'' a word means to draw a circle around it.'),
+  (1,'speaking','multiple_choice',1,10,'How do you ask someone''s name?', '["What''s your name?","How you name?","Where name you?","Who you name?"]'::jsonb,'What''s your name?','The correct question is ''What''s your name?'''),
+  (1,'listening','multiple_choice',1,10,'Choose the correct spelling:', '["computer","conputer","computor","compyuter"]'::jsonb,'computer','The correct spelling is ''computer''.'),
+  (1,'writing','multiple_choice',2,15,'Which sentence is written correctly?', '["My name is Ana.","my name is ana","Name my is Ana.","is my name Ana"]'::jsonb,'My name is Ana.','Sentences start with a capital letter and end with a period.'),
+  (2,'grammar','multiple_choice',1,10,'Choose: "Can I have ___ apple?"', '["an","a","the","one"]'::jsonb,'an','Use ''an'' before vowel sounds (a, e, i, o, u).'),
+  (2,'grammar','multiple_choice',1,10,'Choose: "She is ___ teacher."', '["a","an","the","some"]'::jsonb,'a','Use ''a'' before consonant sounds.'),
+  (2,'grammar','multiple_choice',2,15,'Plural of "child":', '["children","childs","childes","child"]'::jsonb,'children','''child'' is irregular: the plural is ''children''.'),
+  (2,'grammar','multiple_choice',2,15,'Plural of "foot":', '["feet","foots","feets","footes"]'::jsonb,'feet','''foot'' is irregular: the plural is ''feet''.'),
+  (2,'grammar','multiple_choice',2,15,'This is near me. Complete: "___ is my book."', '["This","That","Those","These"]'::jsonb,'This','''This'' is for something singular and near.'),
+  (2,'vocabulary','multiple_choice',1,10,'Someone from Germany is ___.', '["German","Germany","Germanish","Germanic"]'::jsonb,'German','The nationality for Germany is ''German''.'),
+  (2,'vocabulary','multiple_choice',1,10,'You write on the ___ with a marker.', '["board","floor","window","chair"]'::jsonb,'board','In class you write on the board.'),
+  (2,'listening','multiple_choice',1,10,'Choose the correct spelling:', '["Thursday","Thusday","Thirsday","Thrusday"]'::jsonb,'Thursday','The day is spelled ''Thursday''.'),
+  (3,'grammar','multiple_choice',1,10,'Complete: "I have a sister. ___ name is Susan."', '["Her","His","Their","My"]'::jsonb,'Her','For a female (sister) we use ''Her''.'),
+  (3,'grammar','multiple_choice',2,15,'Complete: "The books are ___." (we)', '["ours","our","us","our''s"]'::jsonb,'ours','After the verb we use the possessive pronoun ''ours''.'),
+  (3,'grammar','multiple_choice',2,15,'Complete: "He has a dog. ___ dog is big."', '["His","Her","Its","Their"]'::jsonb,'His','For a male (he) we use ''His''.'),
+  (3,'vocabulary','multiple_choice',1,10,'Your mother''s brother is your ___.', '["uncle","aunt","cousin","nephew"]'::jsonb,'uncle','Your mother''s (or father''s) brother is your uncle.'),
+  (3,'vocabulary','multiple_choice',1,10,'Opposite of "handsome / beautiful":', '["ugly","tall","happy","rich"]'::jsonb,'ugly','The opposite of beautiful/handsome is ''ugly''.'),
+  (3,'vocabulary','multiple_choice',2,15,'What time is 6:30?', '["Half past six","Quarter past six","Six o''clock","Half past seven"]'::jsonb,'Half past six','6:30 is ''half past six''.'),
+  (3,'speaking','multiple_choice',1,10,'How do you ask someone''s age?', '["How old are you?","How many years you?","What age you have?","How much old you?"]'::jsonb,'How old are you?','The correct question is ''How old are you?'''),
+  (3,'writing','multiple_choice',2,15,'Choose the correct sentence:', '["My family is big.","My family are big number.","Family my big.","Is big my family."]'::jsonb,'My family is big.','Subject + verb ''is'' + adjective.'),
+  (4,'grammar','multiple_choice',2,15,'Present simple: "I finish -> she ___."', '["finishes","finishs","finish","finiches"]'::jsonb,'finishes','Verbs ending in -sh add ''-es'': finishes.'),
+  (4,'grammar','multiple_choice',2,15,'Present simple: "I carry -> she ___."', '["carries","carrys","carryes","caries"]'::jsonb,'carries','Consonant + y changes to ''-ies'': carries.'),
+  (4,'grammar','multiple_choice',1,10,'Present simple: "I go -> she ___."', '["goes","gos","goees","go"]'::jsonb,'goes','''go'' adds -es: goes.'),
+  (4,'grammar','multiple_choice',1,10,'Present simple: "I play -> she ___."', '["plays","plaies","playes","play"]'::jsonb,'plays','Vowel + y just adds ''-s'': plays.'),
+  (4,'vocabulary','multiple_choice',1,10,'In the morning I ___ up at 6 a.m.', '["get","take","do","make"]'::jsonb,'get','The phrasal verb is ''get up''.'),
+  (4,'vocabulary','multiple_choice',1,10,'You cook in the ___.', '["kitchen","bedroom","bathroom","attic"]'::jsonb,'kitchen','You cook in the kitchen.'),
+  (4,'vocabulary','multiple_choice',1,10,'You sleep in the ___.', '["bedroom","kitchen","garage","laundry"]'::jsonb,'bedroom','You sleep in the bedroom.'),
+  (4,'listening','multiple_choice',1,10,'Complete: "I ___ a shower every morning."', '["take","do","make","give"]'::jsonb,'take','The phrase is ''take a shower''.')
 ) as v(unit_id,area,type,difficulty,xp_reward,question,options,correct_answer,explanation)
 where not exists (select 1 from activities);
 
