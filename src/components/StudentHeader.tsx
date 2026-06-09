@@ -1,4 +1,6 @@
 import { Student } from '@/lib/types'
+import { useLang } from '@/lib/LangContext'
+import LanguageToggle from '@/components/LanguageToggle'
 
 interface Props {
   student: Student
@@ -9,6 +11,7 @@ interface Props {
 }
 
 export default function StudentHeader({ student, level, onLogout }: Props) {
+  const { t } = useLang()
   return (
     <header className="bg-white/10 backdrop-blur border-b border-white/20">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -18,7 +21,7 @@ export default function StudentHeader({ student, level, onLogout }: Props) {
           </div>
           <div>
             <div className="text-white font-semibold text-sm">{student.name}</div>
-            <div className="text-blue-300 text-xs">Level {level} Explorer</div>
+            <div className="text-blue-300 text-xs">{t('Nivel', 'Level')} {level}</div>
           </div>
         </div>
 
@@ -29,13 +32,14 @@ export default function StudentHeader({ student, level, onLogout }: Props) {
           </div>
           <div className="text-center">
             <div className="text-orange-400 font-bold text-sm">🔥 {student.current_streak}</div>
-            <div className="text-blue-300 text-xs">Streak</div>
+            <div className="text-blue-300 text-xs">{t('Racha', 'Streak')}</div>
           </div>
+          <LanguageToggle />
           <button
             onClick={onLogout}
             className="text-white/60 hover:text-white text-sm transition"
           >
-            Exit
+            {t('Salir', 'Exit')}
           </button>
         </div>
       </div>

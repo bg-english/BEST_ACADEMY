@@ -8,6 +8,7 @@ import { recordProgress } from '@/lib/gamification'
 import { playCorrect, playWrong } from '@/lib/sound'
 import { speak } from '@/lib/tts'
 import { listenOnce, speechSupported, Recognizer } from '@/lib/speech'
+import { useLang } from '@/lib/LangContext'
 
 interface Props {
   unitId: number
@@ -41,6 +42,7 @@ function shuffle<T>(arr: T[]): T[] {
 type View = 'map' | 'play' | 'levelDone'
 
 export default function PracticeView({ unitId, studentId }: Props) {
+  const { t } = useLang()
   const [exercises, setExercises] = useState<PracticeExercise[]>([])
   const [levelReached, setLevelReached] = useState(0) // último nivel completado
   const [loading, setLoading] = useState(true)
@@ -264,15 +266,15 @@ export default function PracticeView({ unitId, studentId }: Props) {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="text-center text-blue-100 mb-4">
-          Tu dominio: <span className="font-bold text-white">Nivel {levelReached} de {levels.length}</span>
+          {t('Tu dominio:', 'Your mastery:')} <span className="font-bold text-white">{t('Nivel', 'Level')} {levelReached} {t('de', 'of')} {levels.length}</span>
         </div>
 
         <button onClick={startAdaptive}
           className="w-full mb-4 bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:opacity-90 transition">
-          🎯 Práctica adaptativa <span className="font-normal opacity-90">— se ajusta a tu nivel</span>
+          🎯 {t('Práctica adaptativa', 'Adaptive practice')} <span className="font-normal opacity-90">{t('— se ajusta a tu nivel', '— adjusts to your level')}</span>
         </button>
 
-        <div className="text-center text-blue-200 text-sm mb-2">o elige un nivel:</div>
+        <div className="text-center text-blue-200 text-sm mb-2">{t('o elige un nivel:', 'or pick a level:')}</div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {levels.map((lvl) => {
             const unlocked = lvl <= levelReached + 1
@@ -292,7 +294,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
         {reviewCount > 0 && (
           <button onClick={startReview}
             className="mt-5 w-full bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold py-3 rounded-2xl shadow-lg transition">
-            🔁 Repasar mis errores ({reviewCount})
+            🔁 {t('Repasar mis errores', 'Review my mistakes')} ({reviewCount})
           </button>
         )}
       </div>
@@ -313,7 +315,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
           subtitle={`Tu nivel de dominio: Nivel ${reached} de ${maxLevel}`}
           stats={[{ label: 'Aciertos', value: `${score}/${queue.length} (${acc}%)` }, { label: 'XP', value: `+${xp}` }]}
           badges={newBadges.map((b) => ({ name: b.name, icon: b.icon }))}
-          buttonLabel="Volver al mapa"
+          buttonLabel={t('Volver al mapa', 'Back to map')}
           onClose={goMap}
         />
       )
@@ -327,7 +329,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
           title="¡Repaso completado!"
           subtitle={acc >= 80 ? '¡Cada vez lo dominas más!' : '¡Sigue repasando, vas mejorando!'}
           stats={[{ label: 'Aciertos', value: `${score}/${queue.length} (${acc}%)` }]}
-          buttonLabel="Volver al mapa"
+          buttonLabel={t('Volver al mapa', 'Back to map')}
           onClose={goMap}
         />
       )
@@ -346,7 +348,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
         }
         stats={[{ label: 'Aciertos', value: `${score}/${queue.length} (${acc}%)` }, { label: 'XP', value: `+${xp}` }]}
         badges={newBadges.map((b) => ({ name: b.name, icon: b.icon }))}
-        buttonLabel="Volver al mapa"
+        buttonLabel={t('Volver al mapa', 'Back to map')}
         onClose={goMap}
       />
     )
@@ -356,7 +358,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
   if (!ex) return null
   return (
     <div className="max-w-2xl mx-auto">
-      <button onClick={goMap} className="text-blue-200 hover:text-white mb-3">← Salir</button>
+      <button onClick={goMap} className="text-blue-200 hover:text-white mb-3">← {t('Salir', 'Exit')}</button>
       <div className="bg-white rounded-3xl p-5 shadow-2xl">
         <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
           <span>{adaptiveMode ? '🎯 Adaptativa' : reviewMode ? '🔁 Repaso' : `Nivel ${level}`} · {idx + 1}/{adaptiveMode ? ADAPT_TOTAL : queue.length}</span>
@@ -418,7 +420,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500" />
             {!answered && (
               <button onClick={() => input.trim() && grade(input)}
-                className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">Comprobar</button>
+                className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">{t('Comprobar', 'Check')}</button>
             )}
           </div>
         )}
@@ -440,7 +442,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
             </div>
             {!answered && (
               <button onClick={() => grade(built.join(' '))} disabled={built.length === 0}
-                className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">Comprobar</button>
+                className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">{t('Comprobar', 'Check')}</button>
             )}
           </div>
         )}
@@ -472,7 +474,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500" />
                 {!answered && (
                   <button onClick={() => input.trim() && grade(input)}
-                    className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">Comprobar</button>
+                    className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">{t('Comprobar', 'Check')}</button>
                 )}
               </div>
             )}
@@ -511,10 +513,10 @@ export default function PracticeView({ unitId, studentId }: Props) {
         {/* FEEDBACK */}
         {answered && (
           <div className={`mt-4 p-4 rounded-xl ${isCorrect ? 'bg-green-50' : 'bg-amber-50'}`}>
-            <p className="font-semibold mb-1">{isCorrect ? '✅ ¡Correcto!' : `❌ La respuesta correcta es: "${ex.correct_answer}"`}</p>
+            <p className="font-semibold mb-1">{isCorrect ? t('✅ ¡Correcto!', '✅ Correct!') : `${t('❌ La respuesta correcta es:', '❌ The correct answer is:')} "${ex.correct_answer}"`}</p>
             {ex.explanation && <p className="text-sm text-gray-600">{ex.explanation}</p>}
             <button onClick={next} className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">
-              {idx + 1 >= queue.length ? 'Ver resultado 🏆' : 'Siguiente →'}
+              {idx + 1 >= queue.length ? t('Ver resultado 🏆', 'See result 🏆') : t('Siguiente →', 'Next →')}
             </button>
           </div>
         )}
