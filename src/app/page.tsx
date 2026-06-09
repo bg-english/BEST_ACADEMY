@@ -24,7 +24,12 @@ export default function HomePage() {
   }, [])
 
   const checkSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
+    // Guarda defensiva: si getSession se cuelga (lock interno en algunos navegadores),
+    // no dejamos la app en "Loading" para siempre.
+    const session = await Promise.race([
+      supabase.auth.getSession().then((r) => r.data.session),
+      new Promise<null>((res) => setTimeout(() => res(null), 4000)),
+    ])
     if (session?.user) {
       const { data: s } = await supabase
         .from('students')
