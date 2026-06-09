@@ -123,11 +123,11 @@ export interface PracticeExercise {
   unit_id: number
   area: string
   level: number
-  type: 'multiple_choice' | 'fill_blank' | 'true_false' | 'reorder'
+  type: 'multiple_choice' | 'fill_blank' | 'true_false' | 'reorder' | 'listening' | 'speaking'
   timed: boolean
   time_limit_seconds?: number
   prompt: string
-  payload: { options?: string[]; words?: string[]; accept?: string[] }
+  payload: { options?: string[]; words?: string[]; accept?: string[]; audio?: string; target?: string }
   correct_answer: string
   explanation?: string
   xp_reward: number

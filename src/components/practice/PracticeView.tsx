@@ -6,6 +6,8 @@ import { PracticeExercise, Badge } from '@/lib/types'
 import Celebration from '@/components/Celebration'
 import { recordProgress } from '@/lib/gamification'
 import { playCorrect, playWrong } from '@/lib/sound'
+import { speak } from '@/lib/tts'
+import { listenOnce, speechSupported, Recognizer } from '@/lib/speech'
 
 interface Props {
   unitId: number
@@ -14,6 +16,18 @@ interface Props {
 
 const norm = (s: string) =>
   s.toLowerCase().trim().replace(/\s+/g, ' ').replace(/[.!?¡¿,]/g, '')
+
+// Coincidencia tolerante para Speaking: acepta si dijo la mayoría de las palabras objetivo
+function matchSpeech(transcript: string, target: string): boolean {
+  const t = norm(transcript)
+  const g = norm(target)
+  if (!t) return false
+  if (t === g) return true
+  const gw = g.split(' ').filter(Boolean)
+  const tw = new Set(t.split(' '))
+  const hits = gw.filter((w) => tw.has(w)).length
+  return gw.length > 0 && hits / gw.length >= 0.7
+}
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
@@ -53,6 +67,9 @@ export default function PracticeView({ unitId, studentId }: Props) {
   const [built, setBuilt] = useState<string[]>([])
   const [bank, setBank] = useState<string[]>([])
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
+  const [recording, setRecording] = useState(false)
+  const [transcript, setTranscript] = useState('')
+  const recRef = useRef<Recognizer | null>(null)
 
   // ---- carga ----
   useEffect(() => {
@@ -107,6 +124,7 @@ export default function PracticeView({ unitId, studentId }: Props) {
 
   const setupExercise = useCallback((e: PracticeExercise) => {
     setAnswered(false); setIsCorrect(false); setChosen(null); setInput(''); setBuilt([])
+    setTranscript(''); setRecording(false)
     if (e.type === 'reorder') setBank(shuffle(e.payload.words || []))
     else setBank([])
     setTimeLeft(e.timed && e.time_limit_seconds ? e.time_limit_seconds : null)
@@ -121,7 +139,9 @@ export default function PracticeView({ unitId, studentId }: Props) {
   const grade = (answer: string) => {
     if (answered || !ex) return
     const ok =
-      ex.type === 'fill_blank'
+      ex.type === 'speaking'
+        ? matchSpeech(answer, ex.correct_answer)
+        : ex.type === 'fill_blank' || ex.type === 'listening'
         ? norm(answer) === norm(ex.correct_answer) || (ex.payload.accept || []).some((a) => norm(a) === norm(answer))
         : norm(answer) === norm(ex.correct_answer)
     setAnswered(true); setIsCorrect(ok); setChosen(answer)
@@ -135,6 +155,15 @@ export default function PracticeView({ unitId, studentId }: Props) {
     }
     // Registrar el intento (para el repaso de errores). Fire-and-forget.
     supabase.from('student_practice_attempts').insert({ student_id: studentId, exercise_id: ex.id, is_correct: ok })
+  }
+
+  const startSpeak = () => {
+    if (answered || recording) return
+    setRecording(true); setTranscript('')
+    recRef.current = listenOnce(
+      (t) => { setRecording(false); setTranscript(t); grade(t) },
+      () => { setRecording(false) }
+    )
   }
 
   // Calcula los ejercicios a repasar: aquellos cuyo ÚLTIMO intento fue incorrecto
@@ -412,6 +441,69 @@ export default function PracticeView({ unitId, studentId }: Props) {
             {!answered && (
               <button onClick={() => grade(built.join(' '))} disabled={built.length === 0}
                 className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">Comprobar</button>
+            )}
+          </div>
+        )}
+
+        {/* LISTENING (escuchar y responder; el texto no se muestra) */}
+        {ex.type === 'listening' && (
+          <div>
+            <button type="button" onClick={() => speak(ex.payload.audio || ex.correct_answer)}
+              className="mb-4 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">
+              🔊 Escuchar {answered ? '' : '(toca para repetir)'}
+            </button>
+            {ex.payload.options ? (
+              <div className="space-y-2">
+                {ex.payload.options.map((opt) => {
+                  let s = 'border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50'
+                  if (answered && norm(opt) === norm(ex.correct_answer)) s = 'border-2 border-green-500 bg-green-50'
+                  else if (answered && opt === chosen) s = 'border-2 border-red-400 bg-red-50'
+                  return (
+                    <button key={opt} disabled={answered} onClick={() => grade(opt)}
+                      className={`w-full text-left px-4 py-2.5 rounded-xl font-medium transition ${s}`}>{opt}</button>
+                  )
+                })}
+              </div>
+            ) : (
+              <div>
+                <input value={input} onChange={(e) => setInput(e.target.value)} disabled={answered}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !answered && input.trim()) grade(input) }}
+                  placeholder="Escribe lo que escuchaste…"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500" />
+                {!answered && (
+                  <button onClick={() => input.trim() && grade(input)}
+                    className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">Comprobar</button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* SPEAKING (di la frase; se transcribe y compara) */}
+        {ex.type === 'speaking' && (
+          <div className="text-center">
+            <div className="bg-purple-50 rounded-2xl p-4 mb-4 flex items-center justify-center gap-3">
+              <span className="text-lg font-semibold text-gray-800">{ex.payload.target || ex.correct_answer}</span>
+              <button type="button" onClick={() => speak(ex.payload.target || ex.correct_answer)} className="text-blue-500 text-xl">🔊</button>
+            </div>
+            {speechSupported() ? (
+              <>
+                {!answered && (
+                  <button onClick={startSpeak} disabled={recording}
+                    className={`w-full py-3 rounded-xl font-bold text-white ${recording ? 'bg-red-500 animate-pulse' : 'bg-purple-600 hover:bg-purple-700'}`}>
+                    {recording ? '🎙️ Escuchando… ¡habla ahora!' : '🎤 Hablar'}
+                  </button>
+                )}
+                {transcript && <p className="mt-3 text-sm text-gray-600">Dijiste: <span className="font-medium">&quot;{transcript}&quot;</span></p>}
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-gray-500 mb-3">Tu navegador no permite el micrófono. Léela en voz alta y márcala.</p>
+                {!answered && (
+                  <button onClick={() => grade(ex.correct_answer)}
+                    className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700">✓ Ya la practiqué</button>
+                )}
+              </>
             )}
           </div>
         )}
