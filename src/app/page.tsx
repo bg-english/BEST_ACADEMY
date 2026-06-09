@@ -8,6 +8,7 @@ import StudentHeader from '@/components/StudentHeader'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import LoginForm from '@/components/LoginForm'
 import Leaderboard from '@/components/Leaderboard'
+import ExamView, { ExamMode } from '@/components/exam/ExamView'
 
 export default function HomePage() {
   const [student, setStudent] = useState<Student | null>(null)
@@ -15,6 +16,7 @@ export default function HomePage() {
   const [unitPct, setUnitPct] = useState<Record<number, number>>({})
   const [badges, setBadges] = useState<Badge[]>([])
   const [loading, setLoading] = useState(true)
+  const [examMode, setExamMode] = useState<ExamMode | null>(null)
 
   useEffect(() => {
     loadUnits()
@@ -150,11 +152,44 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* Evaluaciones */}
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">📝 Evaluaciones</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <button onClick={() => setExamMode('placement')}
+              className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition text-center">
+              <div className="text-4xl mb-2">🚀</div>
+              <div className="font-bold text-gray-800">Examen de inicio</div>
+              <div className="text-xs text-gray-400">Mide tu nivel</div>
+            </button>
+            <button onClick={() => setExamMode('quiz')}
+              className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition text-center">
+              <div className="text-4xl mb-2">⚡</div>
+              <div className="font-bold text-gray-800">Quiz corto</div>
+              <div className="text-xs text-gray-400">Repaso rápido</div>
+            </button>
+            <button onClick={() => setExamMode('final')}
+              className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition text-center">
+              <div className="text-4xl mb-2">🎓</div>
+              <div className="font-bold text-gray-800">Examen final</div>
+              <div className="text-xs text-gray-400">Todas las unidades</div>
+            </button>
+          </div>
+        </div>
+
         {/* Ranking de la clase */}
         <div className="mb-10">
           <Leaderboard studentName={student.name} />
         </div>
       </main>
+
+      {examMode && (
+        <ExamView
+          mode={examMode}
+          studentId={student.id}
+          onClose={() => { setExamMode(null); loadStudentData(student.id) }}
+        />
+      )}
     </div>
   )
 }
