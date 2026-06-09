@@ -37,19 +37,19 @@ export default function DiscoverTopic({ topic, studentId, onComplete, onBack }: 
   if (!d) {
     return (
       <div className="max-w-2xl mx-auto">
-        <button onClick={onBack} className="text-blue-200 hover:text-white mb-3">← Volver a temas</button>
-        <div className="bg-white rounded-3xl p-8 text-center text-gray-500">Esta actividad aún no tiene contenido.</div>
+        <button onClick={onBack} className="text-on-surface-variant hover:text-secondary mb-4 flex items-center gap-1 font-button-text text-sm"><span className="material-symbols-outlined text-base">arrow_back</span> Volver a temas</button>
+        <div className="glass-card rounded-3xl p-8 text-center text-on-surface-variant">Esta actividad aún no tiene contenido.</div>
       </div>
     )
   }
 
   return (
     <div className="max-w-2xl mx-auto">
-      <button onClick={onBack} className="text-blue-200 hover:text-white mb-3">← Volver a temas</button>
-      <div className="bg-white rounded-3xl p-6 shadow-2xl">
-        <div className="text-xs font-bold text-fuchsia-500 uppercase mb-1">Descubre · Interactivo</div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">{topic.title}</h2>
-        {d.instructions && <p className="text-gray-600 mb-4">{d.instructions}</p>}
+      <button onClick={onBack} className="text-on-surface-variant hover:text-secondary mb-4 flex items-center gap-1 font-button-text text-sm"><span className="material-symbols-outlined text-base">arrow_back</span> Volver a temas</button>
+      <div className="glass-card rounded-3xl p-6 md:p-8">
+        <div className="font-stat-label text-stat-label text-primary uppercase tracking-widest mb-1">Descubre · Interactivo</div>
+        <h2 className="font-headline-md text-2xl text-on-surface mb-3">{topic.title}</h2>
+        {d.instructions && <p className="text-on-surface-variant mb-5">{d.instructions}</p>}
 
         {d.type === 'tap' ? (
           <TapDiscover d={d} onAllFound={finish} />
@@ -95,15 +95,15 @@ function TapDiscover({ d, onAllFound }: { d: DiscoverData; onAllFound: () => voi
 
   return (
     <div>
-      <div className="bg-indigo-50 rounded-2xl p-5 mb-4 flex flex-wrap gap-2 justify-center">
+      <div className="bg-surface-container-lowest/50 rounded-2xl p-5 mb-4 flex flex-wrap gap-2 justify-center">
         {tokens.map((tok, i) => {
           const n = norm(tok)
           const isTarget = targetWords.has(n)
           const isFound = found.includes(n)
           return (
             <button key={i} onClick={() => tap(tok)}
-              className={`px-3 py-1.5 rounded-lg text-lg font-medium transition ${
-                isFound ? 'bg-green-500 text-white scale-105' : isTarget ? 'bg-white text-gray-800 hover:bg-fuchsia-100 shadow' : 'bg-white text-gray-800 hover:bg-gray-100'
+              className={`px-3 py-1.5 rounded-lg text-lg font-button-text transition ${
+                isFound ? 'bg-tertiary text-on-tertiary scale-105' : isTarget ? 'glass-card text-on-surface hover:border-secondary/50' : 'bg-surface-container-high text-on-surface hover:bg-white/10'
               }`}>
               {tok}
             </button>
@@ -112,18 +112,18 @@ function TapDiscover({ d, onAllFound }: { d: DiscoverData; onAllFound: () => voi
       </div>
 
       {active && (
-        <div className="bg-fuchsia-50 border border-fuchsia-200 rounded-2xl p-4 mb-4 text-center">
-          <p className="font-bold text-fuchsia-700">&quot;{active.word}&quot; → {active.label}</p>
-          {active.note && <p className="text-sm text-gray-600 mt-1">{active.note}</p>}
+        <div className="bg-primary/10 border border-primary/30 rounded-2xl p-4 mb-4 text-center">
+          <p className="font-button-text text-primary">&quot;{active.word}&quot; → {active.label}</p>
+          {active.note && <p className="text-sm text-on-surface-variant mt-1">{active.note}</p>}
         </div>
       )}
 
       <div className="flex items-center gap-2">
-        <div className="flex-1 bg-gray-200 rounded-full h-2">
-          <div className="bg-gradient-to-r from-fuchsia-500 to-purple-600 h-2 rounded-full transition-all"
+        <div className="flex-1 bg-surface-container rounded-full h-2">
+          <div className="bg-gradient-to-r from-tertiary to-secondary h-2 rounded-full transition-all"
             style={{ width: `${(found.length / Math.max(1, targetWords.size)) * 100}%` }} />
         </div>
-        <span className="text-xs text-gray-500 font-semibold">{found.length}/{targetWords.size} descubiertos</span>
+        <span className="text-xs text-on-surface-variant font-semibold">{found.length}/{targetWords.size} descubiertos</span>
       </div>
     </div>
   )
@@ -158,28 +158,28 @@ function SortDiscover({ d, onAllSorted }: { d: DiscoverData; onAllSorted: () => 
       <div className="flex flex-wrap gap-2 justify-center mb-5 min-h-[40px]">
         {pool.map((it, i) => (
           <button key={it.text + i} onClick={() => setSelected(i)}
-            className={`px-3 py-1.5 rounded-lg font-medium transition ${selected === i ? 'bg-fuchsia-600 text-white scale-105' : 'bg-white text-gray-800 shadow hover:bg-fuchsia-50'}`}>
+            className={`px-3 py-1.5 rounded-lg font-button-text transition ${selected === i ? 'bg-primary text-on-primary scale-105' : 'glass-card text-on-surface hover:border-secondary/50'}`}>
             {it.text}
           </button>
         ))}
-        {pool.length === 0 && <p className="text-green-600 font-semibold">¡Todo clasificado! 🎉</p>}
+        {pool.length === 0 && <p className="text-tertiary font-button-text">¡Todo clasificado! 🎉</p>}
       </div>
 
       {/* Categorías (toca un elemento y luego su categoría) */}
       <div className={`grid gap-3 ${categories.length <= 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
         {categories.map((cat) => (
           <button key={cat} onClick={() => place(cat)}
-            className={`min-h-[90px] rounded-2xl p-3 border-2 border-dashed transition ${wrongCat === cat ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-gray-50 hover:border-fuchsia-400'}`}>
-            <div className="font-bold text-gray-700 mb-1">{cat}</div>
+            className={`min-h-[90px] rounded-2xl p-3 border-2 border-dashed transition ${wrongCat === cat ? 'border-error bg-error/10' : 'border-outline-variant/40 bg-surface-container-lowest/40 hover:border-secondary/50'}`}>
+            <div className="font-headline-md text-on-surface mb-1">{cat}</div>
             <div className="flex flex-wrap gap-1 justify-center">
               {placed[cat].map((it, j) => (
-                <span key={j} className="bg-green-500 text-white text-sm px-2 py-0.5 rounded">{it.text}</span>
+                <span key={j} className="bg-tertiary text-on-tertiary text-sm px-2 py-0.5 rounded">{it.text}</span>
               ))}
             </div>
           </button>
         ))}
       </div>
-      <p className="text-xs text-gray-400 text-center mt-3">Toca un elemento y luego la categoría correcta.</p>
+      <p className="text-xs text-on-surface-variant text-center mt-3">Toca un elemento y luego la categoría correcta.</p>
     </div>
   )
 }

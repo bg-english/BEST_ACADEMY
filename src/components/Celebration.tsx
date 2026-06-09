@@ -82,35 +82,35 @@ export default function Celebration({
       </div>
 
       {/* Tarjeta */}
-      <div className="relative bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl pop-in">
+      <div className="relative glass-card rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl pop-in glow-cyan">
         <button
           onClick={toggleMute}
           title={muted ? 'Activar sonido' : 'Silenciar'}
-          className="absolute top-3 right-3 text-xl text-gray-400 hover:text-gray-600"
+          className="absolute top-3 right-3 text-xl text-on-surface-variant hover:text-on-surface"
         >
           {muted ? '🔇' : '🔊'}
         </button>
         <div className="text-7xl mb-3 emoji-bounce inline-block">{emoji}</div>
-        <h2 className="text-2xl font-extrabold text-gray-800 mb-1">{title}</h2>
-        {subtitle && <p className="text-gray-500 mb-2">{subtitle}</p>}
+        <h2 className="font-headline-md text-2xl font-extrabold text-on-surface mb-1">{title}</h2>
+        {subtitle && <p className="text-on-surface-variant mb-2">{subtitle}</p>}
 
         {stats && stats.length > 0 && (
           <div className="flex justify-center gap-6 my-5">
             {stats.map((s) => (
               <div key={s.label}>
-                <div className="text-2xl font-bold text-blue-600">{s.value}</div>
-                <div className="text-xs text-gray-500">{s.label}</div>
+                <div className="font-headline-md text-2xl font-bold text-secondary">{s.value}</div>
+                <div className="text-xs text-on-surface-variant">{s.label}</div>
               </div>
             ))}
           </div>
         )}
 
         {badges && badges.length > 0 && (
-          <div className="my-4 rounded-2xl bg-amber-50 border border-amber-200 p-3">
-            <p className="text-sm font-bold text-amber-700 mb-2">🏅 ¡Nueva{badges.length > 1 ? 's' : ''} insignia{badges.length > 1 ? 's' : ''}!</p>
+          <div className="my-4 rounded-2xl bg-tertiary/10 border border-tertiary/30 p-3">
+            <p className="text-sm font-bold text-tertiary mb-2">🏅 ¡Nueva{badges.length > 1 ? 's' : ''} insignia{badges.length > 1 ? 's' : ''}!</p>
             <div className="flex flex-wrap justify-center gap-2">
               {badges.map((b) => (
-                <span key={b.name} className="inline-flex items-center gap-1 bg-white rounded-full px-3 py-1 text-sm font-medium text-gray-700 shadow">
+                <span key={b.name} className="inline-flex items-center gap-1 bg-surface-container-high rounded-full px-3 py-1 text-sm font-medium text-on-surface">
                   <span>{b.icon}</span>{b.name}
                 </span>
               ))}
@@ -120,7 +120,7 @@ export default function Celebration({
 
         <button
           onClick={onClose}
-          className="mt-4 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:opacity-90 transition"
+          className="mt-4 w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-button-text hover:scale-[1.02] active:scale-95 transition-all"
         >
           {buttonLabel}
         </button>
