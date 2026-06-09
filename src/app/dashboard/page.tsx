@@ -434,100 +434,87 @@ function ManageStudents({ students, onChanged }: { students: Student[]; onChange
     setMsg(res.ok ? `✅ PIN de ${studentName} actualizado.` : `❌ ${json.error}`)
   }
 
+  const inp = 'w-full bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-xl px-4 py-2 focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/30 placeholder:text-outline/50'
   return (
     <div className="space-y-8">
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="bg-white rounded-2xl p-6 shadow">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Nuevo alumno</h3>
+      <div className="glass-card rounded-2xl p-6">
+        <h3 className="font-headline-md text-lg text-on-surface mb-4">Nuevo alumno</h3>
         <form onSubmit={createStudent} className="space-y-3">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre completo"
-            className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <input value={age} onChange={(e) => setAge(e.target.value)} placeholder="Edad (opcional)" type="number"
-            className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <input value={pin} onChange={(e) => setPin(e.target.value)} placeholder="PIN (4-8 dígitos)" inputMode="numeric"
-            className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre completo" className={inp} />
+          <input value={age} onChange={(e) => setAge(e.target.value)} placeholder="Edad (opcional)" type="number" className={inp} />
+          <input value={pin} onChange={(e) => setPin(e.target.value)} placeholder="PIN (4-8 dígitos)" inputMode="numeric" className={inp} />
           <button type="submit" disabled={busy}
-            className="w-full bg-blue-600 text-white py-2 rounded-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50">
+            className="w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-2.5 rounded-xl font-button-text hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50">
             {busy ? '…' : 'Crear alumno'}
           </button>
         </form>
-        {msg && <p className="text-sm mt-3 text-gray-700">{msg}</p>}
+        {msg && <p className="text-sm mt-3 text-on-surface-variant">{msg}</p>}
       </div>
 
-      <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Alumnos ({students.length})</h3>
-        <div className="divide-y">
+      <div className="lg:col-span-2 glass-card rounded-2xl p-6">
+        <h3 className="font-headline-md text-lg text-on-surface mb-4">Alumnos ({students.length})</h3>
+        <div className="divide-y divide-white/5">
           {students.map((s) => (
             editingId === s.id ? (
-              <div key={s.id} className="py-3 space-y-2 bg-blue-50 -mx-2 px-2 rounded-lg">
-                <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nombre y apellidos"
-                  className="w-full border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <div key={s.id} className="py-3 space-y-2 bg-secondary/5 -mx-2 px-2 rounded-lg">
+                <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nombre y apellidos" className={`${inp} text-sm py-1.5`} />
                 <div className="flex gap-2">
-                  <input value={editAge} onChange={(e) => setEditAge(e.target.value)} placeholder="Edad" type="number"
-                    className="w-24 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                  <input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="Correo"
-                    className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <input value={editAge} onChange={(e) => setEditAge(e.target.value)} placeholder="Edad" type="number" className={`${inp} w-24 text-sm py-1.5`} />
+                  <input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="Correo" className={`${inp} flex-1 text-sm py-1.5`} />
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => saveEdit(s.id)}
-                    className="bg-green-600 text-white text-sm px-3 py-1 rounded-lg hover:bg-green-700">Guardar</button>
-                  <button onClick={cancelEdit}
-                    className="bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-lg hover:bg-gray-300">Cancelar</button>
+                  <button onClick={() => saveEdit(s.id)} className="bg-tertiary text-on-tertiary text-sm px-3 py-1 rounded-lg font-button-text">Guardar</button>
+                  <button onClick={cancelEdit} className="bg-surface-container-high text-on-surface text-sm px-3 py-1 rounded-lg">Cancelar</button>
                 </div>
               </div>
             ) : (
-              <div key={s.id} className="flex items-center justify-between py-2">
+              <div key={s.id} className="flex items-center justify-between py-2.5">
                 <div className="min-w-0">
-                  <div className="font-medium text-gray-800 truncate">{s.name}{s.age != null && <span className="text-gray-400 font-normal"> · {s.age}</span>}</div>
-                  <div className="text-xs text-gray-400 truncate">{s.email}</div>
+                  <div className="font-button-text text-on-surface truncate">{s.name}{s.age != null && <span className="text-on-surface-variant font-normal"> · {s.age}</span>}</div>
+                  <div className="text-xs text-on-surface-variant truncate">{s.email}</div>
                 </div>
                 <div className="flex gap-3 shrink-0 ml-2">
-                  <button onClick={() => startEdit(s)}
-                    className="text-sm text-gray-600 hover:underline">Editar</button>
-                  <button onClick={() => resetPin(s.id, s.name)}
-                    className="text-sm text-blue-600 hover:underline">PIN</button>
+                  <button onClick={() => startEdit(s)} className="text-sm text-on-surface-variant hover:text-on-surface">Editar</button>
+                  <button onClick={() => resetPin(s.id, s.name)} className="text-sm text-secondary hover:underline">PIN</button>
                 </div>
               </div>
             )
           ))}
-          {students.length === 0 && <p className="text-gray-400 text-sm py-4">Aún no hay alumnos.</p>}
+          {students.length === 0 && <p className="text-on-surface-variant text-sm py-4">Aún no hay alumnos.</p>}
         </div>
       </div>
     </div>
 
-    <div className="bg-white rounded-2xl p-6 shadow">
-      <h3 className="text-lg font-bold text-gray-800 mb-2">Importar lista de clase</h3>
-      <p className="text-sm text-gray-500 mb-3">
-        Un alumno por línea. Formato: <code>Nombre completo, edad</code> (la edad es opcional).
+    <div className="glass-card rounded-2xl p-6">
+      <h3 className="font-headline-md text-lg text-on-surface mb-2">Importar lista de clase</h3>
+      <p className="text-sm text-on-surface-variant mb-3">
+        Un alumno por línea. Formato: <code className="text-secondary">Nombre completo, edad</code> (la edad es opcional).
         Se genera un PIN aleatorio para cada uno.
       </p>
-      <textarea
-        value={bulkText}
-        onChange={(e) => setBulkText(e.target.value)}
-        rows={8}
+      <textarea value={bulkText} onChange={(e) => setBulkText(e.target.value)} rows={8}
         placeholder={'Maria Garcia, 12\nJuan Perez, 13\nAna Lopez'}
-        className="w-full border rounded-xl px-4 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+        className={`${inp} font-mono text-sm`} />
       <button onClick={importBulk} disabled={importing}
-        className="mt-3 bg-purple-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-purple-700 transition disabled:opacity-50">
+        className="mt-3 bg-gradient-to-r from-primary to-secondary text-on-primary px-5 py-2.5 rounded-xl font-button-text hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50">
         {importing ? 'Importando…' : 'Importar alumnos'}
       </button>
 
       {importResult && (
         <div className="mt-4">
-          <p className="font-semibold text-green-700 mb-2">
+          <p className="font-button-text text-tertiary mb-2">
             ✅ {importResult.length} alumnos creados. Guarda estos PINs y repártelos:
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
             {importResult.map((r) => (
-              <div key={r.name} className="flex justify-between bg-gray-50 rounded px-3 py-1">
-                <span className="truncate mr-2">{r.name}</span>
-                <span className="font-mono font-bold">{r.pin}</span>
+              <div key={r.name} className="flex justify-between bg-surface-container-lowest/60 rounded px-3 py-1">
+                <span className="truncate mr-2 text-on-surface">{r.name}</span>
+                <span className="font-mono font-bold text-secondary">{r.pin}</span>
               </div>
             ))}
           </div>
           {importSkipped.length > 0 && (
-            <p className="text-xs text-amber-600 mt-3">
+            <p className="text-xs text-amber-400 mt-3">
               Omitidos: {importSkipped.map((s) => `${s.name} (${s.reason})`).join(', ')}
             </p>
           )}

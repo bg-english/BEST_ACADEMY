@@ -57,54 +57,54 @@ export default function TeacherResources() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="bg-white rounded-2xl p-5 shadow mb-4">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Unidad</label>
+      <div className="glass-card rounded-2xl p-5 mb-4">
+        <label className="block text-sm font-button-text text-on-surface mb-2">Unidad</label>
         <select value={unitId ?? ''} onChange={(e) => setUnitId(Number(e.target.value))}
-          className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          className="w-full bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-xl px-4 py-2 focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/30">
           {units.map((u) => <option key={u.id} value={u.id}>Unit {u.number}: {u.title}</option>)}
         </select>
-        {msg && <p className="text-sm mt-2 text-gray-700">{msg}</p>}
+        {msg && <p className="text-sm mt-2 text-on-surface-variant">{msg}</p>}
       </div>
 
       <div className="space-y-4">
         {topics.map((t) => (
-          <div key={t.id} className="bg-white rounded-2xl p-5 shadow">
+          <div key={t.id} className="glass-card rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-lg">{t.kind === 'vocabulary' ? '🗂️' : '📐'}</span>
-              <h3 className="font-bold text-gray-800">{t.title}</h3>
+              <span className="text-lg">{t.kind === 'vocabulary' ? '🗂️' : t.kind === 'discover' ? '🧩' : '📐'}</span>
+              <h3 className="font-headline-md text-on-surface">{t.title}</h3>
             </div>
 
             {/* Video (YouTube o URL) */}
-            <label className="block text-xs font-semibold text-gray-500 mb-1">🎬 Video (pega un enlace de YouTube)</label>
+            <label className="block text-xs font-button-text text-on-surface-variant mb-1">🎬 Video (pega un enlace de YouTube)</label>
             <div className="flex gap-2 mb-1">
               <input
                 value={videoInputs[t.id] ?? ''}
                 onChange={(e) => setVideoInputs((v) => ({ ...v, [t.id]: e.target.value }))}
                 placeholder="https://www.youtube.com/watch?v=..."
-                className="flex-1 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-secondary placeholder:text-outline/50"
               />
-              <button onClick={() => saveVideo(t)} className="bg-blue-600 text-white px-4 rounded-xl text-sm font-semibold hover:bg-blue-700">Guardar</button>
+              <button onClick={() => saveVideo(t)} className="bg-gradient-to-r from-primary to-secondary text-on-primary px-4 rounded-xl text-sm font-button-text">Guardar</button>
             </div>
-            {t.video_url && <button onClick={() => removeField(t, 'video_url')} className="text-xs text-red-500 hover:underline mb-3">Quitar video</button>}
+            {t.video_url && <button onClick={() => removeField(t, 'video_url')} className="text-xs text-error hover:underline mb-3">Quitar video</button>}
 
             {/* Infografía (archivo) */}
-            <label className="block text-xs font-semibold text-gray-500 mb-1 mt-3">📊 Infografía (imagen)</label>
+            <label className="block text-xs font-button-text text-on-surface-variant mb-1 mt-3">📊 Infografía (imagen)</label>
             <div className="flex items-center gap-3">
               <input type="file" accept="image/*" disabled={busy === t.id}
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(t, f) }}
-                className="text-sm" />
-              {busy === t.id && <span className="text-xs text-gray-400">Subiendo…</span>}
+                className="text-sm text-on-surface-variant file:bg-surface-container-high file:text-on-surface file:border-0 file:rounded-lg file:px-3 file:py-1.5 file:mr-3" />
+              {busy === t.id && <span className="text-xs text-on-surface-variant">Subiendo…</span>}
               {t.image_url && (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={t.image_url} alt="" className="h-10 w-10 object-cover rounded-lg" />
-                  <button onClick={() => removeField(t, 'image_url')} className="text-xs text-red-500 hover:underline">Quitar</button>
+                  <button onClick={() => removeField(t, 'image_url')} className="text-xs text-error hover:underline">Quitar</button>
                 </>
               )}
             </div>
           </div>
         ))}
-        {topics.length === 0 && <p className="text-gray-400 text-sm text-center py-6">Esta unidad no tiene temas de teoría.</p>}
+        {topics.length === 0 && <p className="text-on-surface-variant text-sm text-center py-6">Esta unidad no tiene temas de teoría.</p>}
       </div>
     </div>
   )
