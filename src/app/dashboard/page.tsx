@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Student, Unit } from '@/lib/types'
 import StudentTable from '@/components/StudentTable'
-import DashboardHeader from '@/components/DashboardHeader'
 import TeacherResources from '@/components/TeacherResources'
 
 type Tab = 'overview' | 'manage' | 'resources'
@@ -139,7 +138,7 @@ export default function DashboardPage() {
   // ---- Render: not authenticated ----------------------------
   if (!authReady) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center text-white">
+      <div className="min-h-screen flex items-center justify-center text-on-surface-variant font-headline-md animate-pulse">
         Loading…
       </div>
     )
@@ -147,40 +146,40 @@ export default function DashboardPage() {
 
   if (!isTeacher) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="glass-card glow-cyan rounded-3xl p-8 w-full max-w-sm">
           <div className="text-center mb-6">
             <div className="text-5xl mb-3">👨‍🏫</div>
-            <h1 className="text-2xl font-bold text-gray-800">Teacher Dashboard</h1>
-            <p className="text-gray-500 text-sm">BEST Academy</p>
+            <h1 className="font-headline-md text-2xl text-on-surface">Panel del Profesor</h1>
+            <p className="text-on-surface-variant text-sm">BEST Academy</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-3">
             <input
               type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder="Email" autoComplete="username"
-              className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-xl px-4 py-3 focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/30 placeholder:text-outline/50"
             />
             <input
               type="password" value={password} onChange={(e) => setPassword(e.target.value)}
               placeholder="Contraseña" autoComplete="current-password"
-              className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-xl px-4 py-3 focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/30 placeholder:text-outline/50"
             />
-            {authError && <p className="text-sm text-center text-red-500">{authError}</p>}
+            {authError && <p className="text-sm text-center text-error">{authError}</p>}
             <button type="submit" disabled={authBusy}
-              className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50">
+              className="w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-button-text hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50">
               {authBusy ? '…' : 'Entrar'}
             </button>
           </form>
           <div className="mt-4 flex flex-col gap-2">
             <button onClick={handleBootstrap} disabled={authBusy}
-              className="text-sm text-blue-600 hover:underline">Crear cuenta de profesor (primera vez)</button>
+              className="text-sm text-secondary hover:underline">Crear cuenta de profesor (primera vez)</button>
             {token && !isTeacher && (
-              <p className="text-xs text-center text-amber-600">
+              <p className="text-xs text-center text-amber-400">
                 Tu cuenta no tiene rol de profesor. Pide que te añadan a la tabla <code>teachers</code>.
               </p>
             )}
             {token && (
-              <button onClick={handleLogout} className="text-xs text-gray-400 hover:underline">Cerrar sesión</button>
+              <button onClick={handleLogout} className="text-xs text-on-surface-variant hover:underline">Cerrar sesión</button>
             )}
           </div>
         </div>
@@ -198,37 +197,40 @@ export default function DashboardPage() {
     { icon: '🗂️', label: 'Palabras dominadas', value: sumValues(vocabByStudent) },
   ]
 
+  const tabCls = (active: boolean) =>
+    `px-4 py-2 rounded-xl font-button-text transition-all ${active ? 'bg-gradient-to-r from-primary to-secondary text-on-primary' : 'glass-card text-on-surface-variant hover:text-on-surface'}`
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <DashboardHeader studentCount={students.length} />
+    <div className="min-h-screen">
+      <header className="h-20 flex items-center px-4 md:px-margin-edge bg-surface/80 backdrop-blur-xl border-b border-white/10">
+        <h1 className="font-headline-md text-headline-md font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">BEST Academy</h1>
+        <span className="ml-4 text-on-surface-variant text-sm">👨‍🏫 {students.length} alumnos</span>
+      </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex gap-2">
-            <button onClick={() => setTab('overview')}
-              className={`px-4 py-2 rounded-lg font-medium ${tab === 'overview' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600'}`}>
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+          <div className="flex gap-2 flex-wrap">
+            <button onClick={() => setTab('overview')} className={tabCls(tab === 'overview')}>
               Resumen
             </button>
-            <button onClick={() => setTab('manage')}
-              className={`px-4 py-2 rounded-lg font-medium ${tab === 'manage' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600'}`}>
+            <button onClick={() => setTab('manage')} className={tabCls(tab === 'manage')}>
               Gestionar alumnos
             </button>
-            <button onClick={() => setTab('resources')}
-              className={`px-4 py-2 rounded-lg font-medium ${tab === 'resources' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600'}`}>
+            <button onClick={() => setTab('resources')} className={tabCls(tab === 'resources')}>
               Recursos
             </button>
           </div>
-          <button onClick={handleLogout} className="text-sm text-gray-500 hover:underline">Cerrar sesión</button>
+          <button onClick={handleLogout} className="text-sm text-on-surface-variant hover:text-on-surface">Cerrar sesión</button>
         </div>
 
         {tab === 'overview' ? (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {classCards.map(c => (
-                <div key={c.label} className="bg-white rounded-2xl p-4 shadow text-center">
+                <div key={c.label} className="glass-card rounded-2xl p-4 text-center">
                   <div className="text-3xl mb-1">{c.icon}</div>
-                  <div className="text-2xl font-bold text-blue-600">{c.value}</div>
-                  <div className="text-xs text-gray-400">{c.label}</div>
+                  <div className="font-headline-md text-2xl font-bold text-secondary">{c.value}</div>
+                  <div className="text-xs text-on-surface-variant">{c.label}</div>
                 </div>
               ))}
             </div>
@@ -245,37 +247,37 @@ export default function DashboardPage() {
               <div className="lg:col-span-2">
                 {selectedStudent ? (
                   <div className="space-y-6">
-                    <div className="bg-white rounded-2xl p-6 shadow">
+                    <div className="glass-card rounded-2xl p-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                        <div className="w-16 h-16 bg-gradient-to-br from-primary-container to-secondary rounded-full flex items-center justify-center text-on-primary text-2xl font-bold">
                           {selectedStudent.name.charAt(0)}
                         </div>
                         <div className="min-w-0">
-                          <h2 className="text-xl font-bold text-gray-800 truncate">{selectedStudent.name}</h2>
-                          <p className="text-gray-500 truncate">{selectedStudent.email}</p>
+                          <h2 className="font-headline-md text-xl text-on-surface truncate">{selectedStudent.name}</h2>
+                          <p className="text-on-surface-variant truncate text-sm">{selectedStudent.email}</p>
                         </div>
                         <div className="ml-auto text-right shrink-0">
-                          <div className="text-2xl font-bold text-yellow-600">{selectedStudent.total_xp} XP</div>
-                          <div className="text-sm text-orange-500">🔥 {selectedStudent.current_streak} day streak</div>
+                          <div className="font-headline-md text-2xl font-bold text-tertiary">{selectedStudent.total_xp} XP</div>
+                          <div className="text-sm text-error">🔥 {selectedStudent.current_streak} días</div>
                         </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="bg-white rounded-2xl p-4 shadow text-center">
-                        <div className="text-2xl font-bold text-purple-600">Nivel {selectedStudent.level}</div>
-                        <div className="text-xs text-gray-400">Nivel</div>
+                      <div className="glass-card rounded-2xl p-4 text-center">
+                        <div className="font-headline-md text-2xl font-bold text-primary">Nivel {selectedStudent.level}</div>
+                        <div className="text-xs text-on-surface-variant">Nivel</div>
                       </div>
-                      <div className="bg-white rounded-2xl p-4 shadow text-center">
-                        <div className="text-2xl font-bold text-blue-600">{topicsByStudent[selectedStudent.id] || 0}</div>
-                        <div className="text-xs text-gray-400">Temas</div>
+                      <div className="glass-card rounded-2xl p-4 text-center">
+                        <div className="font-headline-md text-2xl font-bold text-secondary">{topicsByStudent[selectedStudent.id] || 0}</div>
+                        <div className="text-xs text-on-surface-variant">Temas</div>
                       </div>
-                      <div className="bg-white rounded-2xl p-4 shadow text-center">
-                        <div className="text-2xl font-bold text-green-600">{vocabByStudent[selectedStudent.id] || 0}</div>
-                        <div className="text-xs text-gray-400">Palabras</div>
+                      <div className="glass-card rounded-2xl p-4 text-center">
+                        <div className="font-headline-md text-2xl font-bold text-tertiary">{vocabByStudent[selectedStudent.id] || 0}</div>
+                        <div className="text-xs text-on-surface-variant">Palabras</div>
                       </div>
                     </div>
-                    <div className="bg-white rounded-2xl p-6 shadow">
-                      <h3 className="text-lg font-bold text-gray-800 mb-4">Práctica por unidad</h3>
+                    <div className="glass-card rounded-2xl p-6">
+                      <h3 className="font-headline-md text-lg text-on-surface mb-4">Práctica por unidad</h3>
                       <div className="space-y-3">
                         {units.map(u => {
                           const lvl = practiceByStudent[selectedStudent.id]?.[u.id] || 0
@@ -283,24 +285,24 @@ export default function DashboardPage() {
                           return (
                             <div key={u.id}>
                               <div className="flex justify-between text-sm mb-1">
-                                <span className="text-gray-700 font-medium truncate">Unit {u.number}: {u.title}</span>
-                                <span className="text-gray-400">Nivel {lvl}/6</span>
+                                <span className="text-on-surface font-medium truncate">Unit {u.number}: {u.title}</span>
+                                <span className="text-on-surface-variant">Nivel {lvl}/6</span>
                               </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style={{ width: `${pct}%` }} />
+                              <div className="w-full bg-surface-container rounded-full h-2">
+                                <div className="bg-gradient-to-r from-tertiary to-secondary h-2 rounded-full" style={{ width: `${pct}%` }} />
                               </div>
                             </div>
                           )
                         })}
-                        {units.length === 0 && <p className="text-gray-400 text-sm">Sin unidades.</p>}
+                        {units.length === 0 && <p className="text-on-surface-variant text-sm">Sin unidades.</p>}
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-white rounded-2xl p-12 shadow text-center">
+                  <div className="glass-card rounded-2xl p-12 text-center">
                     <div className="text-6xl mb-4">👈</div>
-                    <h3 className="text-xl font-bold text-gray-600">Selecciona un alumno</h3>
-                    <p className="text-gray-400">Toca un alumno para ver su progreso detallado</p>
+                    <h3 className="font-headline-md text-xl text-on-surface">Selecciona un alumno</h3>
+                    <p className="text-on-surface-variant">Toca un alumno para ver su progreso detallado</p>
                   </div>
                 )}
               </div>
