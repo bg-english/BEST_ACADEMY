@@ -256,47 +256,69 @@ export default function PracticeView({ unitId, studentId }: Props) {
     }
   }
 
-  if (loading) return <div className="text-center text-blue-200 py-10">Cargando práctica…</div>
+  if (loading) return <div className="text-center text-on-surface-variant py-10 animate-pulse">Cargando práctica…</div>
   if (levels.length === 0) {
-    return <div className="max-w-2xl mx-auto bg-white/10 rounded-2xl p-8 text-center text-blue-100">Aún no hay ejercicios de práctica para esta unidad.</div>
+    return <div className="max-w-2xl mx-auto glass-card rounded-3xl p-8 text-center text-on-surface-variant">Aún no hay ejercicios de práctica para esta unidad.</div>
   }
 
   // ---- MAPA DE NIVELES ----
   if (view === 'map') {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center text-blue-100 mb-4">
-          {t('Tu dominio:', 'Your mastery:')} <span className="font-bold text-white">{t('Nivel', 'Level')} {levelReached} {t('de', 'of')} {levels.length}</span>
-        </div>
-
-        <button onClick={startAdaptive}
-          className="w-full mb-4 bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white font-bold py-3 rounded-2xl shadow-lg hover:opacity-90 transition">
-          🎯 {t('Práctica adaptativa', 'Adaptive practice')} <span className="font-normal opacity-90">{t('— se ajusta a tu nivel', '— adjusts to your level')}</span>
-        </button>
-
-        <div className="text-center text-blue-200 text-sm mb-2">{t('o elige un nivel:', 'or pick a level:')}</div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {levels.map((lvl) => {
-            const unlocked = lvl <= levelReached + 1
-            const done = lvl <= levelReached
-            const timed = exercises.some((e) => e.level === lvl && e.timed)
-            return (
-              <button key={lvl} disabled={!unlocked} onClick={() => startLevel(lvl)}
-                className={`rounded-2xl p-4 text-center shadow-lg transition ${unlocked ? 'bg-white hover:shadow-xl' : 'bg-white/30 cursor-not-allowed'}`}>
-                <div className="text-3xl mb-1">{done ? '⭐' : unlocked ? (timed ? '⏱️' : '▶️') : '🔒'}</div>
-                <div className={`font-bold ${unlocked ? 'text-gray-800' : 'text-white/70'}`}>Nivel {lvl}</div>
-                <div className={`text-xs ${unlocked ? 'text-gray-400' : 'text-white/50'}`}>{timed ? 'con tiempo' : 'práctica'}</div>
+      <div>
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-8">
+          <div>
+            <span className="font-stat-label text-secondary uppercase tracking-widest text-xs">{t('Tu camino', 'Learning journey')}</span>
+            <h2 className="font-headline-md text-3xl md:text-display-lg-mobile text-on-surface">{t('Dominio', 'Mastery')}: {t('Nivel', 'Level')} {levelReached} {t('de', 'of')} {levels.length}</h2>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {reviewCount > 0 && (
+              <button onClick={startReview}
+                className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-amber-400/10 border border-amber-400/30 hover:border-amber-400/60 hover:-translate-y-0.5 active:scale-95 transition-all">
+                <span className="material-symbols-outlined text-amber-400">history</span>
+                <div className="text-left">
+                  <p className="font-button-text text-on-surface text-sm">{t('Repasar mis errores', 'Review my mistakes')} ({reviewCount})</p>
+                  <p className="text-[10px] text-amber-400/80 uppercase font-stat-label">{t('pendientes', 'pending')}</p>
+                </div>
               </button>
-            )
-          })}
+            )}
+            <button onClick={startAdaptive}
+              className="relative px-6 py-4 rounded-2xl bg-gradient-to-r from-primary-container to-secondary-container glow-cyan hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-3">
+              <span className="text-2xl">🎯</span>
+              <div className="text-left">
+                <p className="font-headline-md text-white leading-tight">{t('Práctica adaptativa', 'Adaptive practice')}</p>
+                <p className="font-body-md text-xs text-white/80">{t('se ajusta a tu nivel', 'adjusts to your level')}</p>
+              </div>
+            </button>
+          </div>
         </div>
 
-        {reviewCount > 0 && (
-          <button onClick={startReview}
-            className="mt-5 w-full bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold py-3 rounded-2xl shadow-lg transition">
-            🔁 {t('Repasar mis errores', 'Review my mistakes')} ({reviewCount})
-          </button>
-        )}
+        <div className="glass-card rounded-[2.5rem] p-6 md:p-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 justify-items-center">
+            {levels.map((lvl) => {
+              const unlocked = lvl <= levelReached + 1
+              const done = lvl <= levelReached
+              const current = lvl === levelReached + 1
+              const timed = exercises.some((e) => e.level === lvl && e.timed)
+              return (
+                <button key={lvl} disabled={!unlocked} onClick={() => startLevel(lvl)}
+                  className="flex flex-col items-center gap-3 group disabled:cursor-not-allowed">
+                  <div className={`rounded-full flex items-center justify-center border-4 transition-transform ${
+                    done ? 'w-20 h-20 bg-tertiary-container border-tertiary glow-lime group-hover:scale-110'
+                    : current ? 'w-24 h-24 bg-gradient-to-br from-secondary to-primary-container border-white glow-cyan group-hover:scale-110 animate-pulse'
+                    : 'w-20 h-20 bg-surface-container-highest border-outline-variant opacity-50'}`}>
+                    <span className={`material-symbols-outlined filled-icon ${done ? 'text-tertiary text-4xl' : current ? 'text-white text-5xl' : 'text-outline text-4xl'}`}>
+                      {done ? 'star' : current ? (timed ? 'timer' : 'play_arrow') : 'lock'}
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <p className={`font-stat-label text-xs ${done ? 'text-tertiary' : current ? 'text-secondary' : 'text-outline'}`}>{t('NIVEL', 'LEVEL')} {lvl}</p>
+                    <p className="font-headline-md text-on-surface text-sm">{timed ? t('con tiempo', 'timed') : t('práctica', 'practice')}</p>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </div>
     )
   }
@@ -356,58 +378,66 @@ export default function PracticeView({ unitId, studentId }: Props) {
 
   // ---- JUGANDO ----
   if (!ex) return null
+  const optCls = (correct: boolean, wrong: boolean) =>
+    `w-full text-left px-5 py-4 rounded-2xl font-button-text border transition-all ${
+      correct ? 'border-tertiary bg-tertiary/10 text-tertiary'
+      : wrong ? 'border-error bg-error/10 text-error'
+      : 'glass-card border-white/10 hover:border-secondary/50 hover:scale-[1.01] text-on-surface'}`
+  const checkBtn = 'mt-4 w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-button-text hover:scale-[1.01] active:scale-95 transition-all'
+  const inputCls = 'w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-outline/50'
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <button onClick={goMap} className="text-blue-200 hover:text-white mb-3">← {t('Salir', 'Exit')}</button>
-      <div className="bg-white rounded-3xl p-5 shadow-2xl">
-        <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
-          <span>{adaptiveMode ? '🎯 Adaptativa' : reviewMode ? '🔁 Repaso' : `Nivel ${level}`} · {idx + 1}/{adaptiveMode ? ADAPT_TOTAL : queue.length}</span>
-          <span className="capitalize">{ex.area}</span>
-          {timeLeft !== null && (
-            <span className={`font-bold ${timeLeft <= 3 ? 'text-red-500' : 'text-blue-600'}`}>⏱️ {timeLeft}s</span>
-          )}
+    <div className="max-w-3xl mx-auto">
+      <button onClick={goMap} className="text-on-surface-variant hover:text-secondary mb-4 flex items-center gap-1 font-button-text text-sm">
+        <span className="material-symbols-outlined text-base">close</span> {t('Salir', 'Exit')}
+      </button>
+      <div className="glass-card rounded-3xl p-6 md:p-8">
+        <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
+          <span className="font-stat-label text-stat-label text-primary uppercase tracking-widest">
+            {adaptiveMode ? '🎯 Adaptativa' : reviewMode ? '🔁 Repaso' : `${t('Nivel', 'Level')} ${level}`} · {idx + 1}/{adaptiveMode ? ADAPT_TOTAL : queue.length}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-surface-container-high border border-white/10 text-xs capitalize text-on-surface-variant">{ex.area}</span>
+            {timeLeft !== null && (
+              <span className={`px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 font-stat-label text-stat-label flex items-center gap-1 ${timeLeft <= 3 ? 'text-error' : 'text-secondary'}`}>
+                <span className="material-symbols-outlined text-[16px]">timer</span>{timeLeft}s
+              </span>
+            )}
+          </div>
         </div>
         {adaptiveMode && (
-          <div className="mb-3">
-            <div className="flex justify-between text-xs text-gray-400 mb-1">
-              <span>Dificultad</span>
-              <span className="font-semibold text-purple-600">Nivel {Math.round(ability)}</span>
+          <div className="mb-4">
+            <div className="flex justify-between text-xs text-on-surface-variant mb-1">
+              <span className="font-stat-label uppercase">Dificultad</span>
+              <span className="font-semibold text-secondary">Nivel {Math.round(ability)}</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div className="bg-gradient-to-r from-fuchsia-500 to-purple-600 h-1.5 rounded-full transition-all duration-500"
+            <div className="w-full bg-surface-container rounded-full h-1.5">
+              <div className="bg-gradient-to-r from-tertiary to-secondary h-1.5 rounded-full transition-all duration-500"
                 style={{ width: `${(ability / maxLevel) * 100}%` }} />
             </div>
           </div>
         )}
-        <p className="text-lg font-semibold text-gray-800 mb-4">{ex.prompt}</p>
+        <p className="font-headline-md text-xl text-on-surface mb-5">{ex.prompt}</p>
 
         {/* OPCIÓN MÚLTIPLE */}
         {ex.type === 'multiple_choice' && (
-          <div className="space-y-2">
-            {(ex.payload.options || []).map((opt) => {
-              let s = 'border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50'
-              if (answered && norm(opt) === norm(ex.correct_answer)) s = 'border-2 border-green-500 bg-green-50'
-              else if (answered && opt === chosen) s = 'border-2 border-red-400 bg-red-50'
-              return (
-                <button key={opt} disabled={answered} onClick={() => grade(opt)}
-                  className={`w-full text-left px-4 py-2.5 rounded-xl font-medium transition ${s}`}>{opt}</button>
-              )
-            })}
+          <div className="space-y-3">
+            {(ex.payload.options || []).map((opt) => (
+              <button key={opt} disabled={answered} onClick={() => grade(opt)}
+                className={optCls(!!answered && norm(opt) === norm(ex.correct_answer), !!answered && opt === chosen && norm(opt) !== norm(ex.correct_answer))}>{opt}</button>
+            ))}
           </div>
         )}
 
         {/* VERDADERO / FALSO */}
         {ex.type === 'true_false' && (
           <div className="grid grid-cols-2 gap-3">
-            {['true', 'false'].map((v) => {
-              let s = 'border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50'
-              if (answered && v === norm(ex.correct_answer)) s = 'border-2 border-green-500 bg-green-50'
-              else if (answered && v === chosen) s = 'border-2 border-red-400 bg-red-50'
-              return (
-                <button key={v} disabled={answered} onClick={() => grade(v)}
-                  className={`px-4 py-3 rounded-xl font-bold transition ${s}`}>{v === 'true' ? '✔ Verdadero' : '✗ Falso'}</button>
-              )
-            })}
+            {['true', 'false'].map((v) => (
+              <button key={v} disabled={answered} onClick={() => grade(v)}
+                className={`py-4 rounded-2xl font-button-text border transition-all ${answered && v === norm(ex.correct_answer) ? 'border-tertiary bg-tertiary/10 text-tertiary' : answered && v === chosen ? 'border-error bg-error/10 text-error' : 'glass-card border-white/10 hover:border-secondary/50 text-on-surface'}`}>
+                {v === 'true' ? '✔ Verdadero' : '✗ Falso'}
+              </button>
+            ))}
           </div>
         )}
 
@@ -416,34 +446,27 @@ export default function PracticeView({ unitId, studentId }: Props) {
           <div>
             <input value={input} onChange={(e) => setInput(e.target.value)} disabled={answered}
               onKeyDown={(e) => { if (e.key === 'Enter' && !answered && input.trim()) grade(input) }}
-              placeholder="Escribe tu respuesta…"
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500" />
-            {!answered && (
-              <button onClick={() => input.trim() && grade(input)}
-                className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">{t('Comprobar', 'Check')}</button>
-            )}
+              placeholder="Escribe tu respuesta…" className={inputCls} />
+            {!answered && <button onClick={() => input.trim() && grade(input)} className={checkBtn}>{t('Comprobar', 'Check')}</button>}
           </div>
         )}
 
         {/* ORDENAR PALABRAS */}
         {ex.type === 'reorder' && (
           <div>
-            <div className="min-h-[48px] border-2 border-dashed border-gray-200 rounded-xl p-2 mb-3 flex flex-wrap gap-2">
+            <div className="min-h-[52px] border-2 border-dashed border-white/10 rounded-xl p-2 mb-3 flex flex-wrap gap-2 bg-surface-container-lowest/50">
               {built.map((w, i) => (
                 <button key={i} disabled={answered} onClick={() => { setBuilt(built.filter((_, j) => j !== i)); setBank([...bank, w]) }}
-                  className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg font-medium">{w}</button>
+                  className="bg-secondary/15 text-secondary px-3 py-1.5 rounded-lg font-button-text">{w}</button>
               ))}
             </div>
             <div className="flex flex-wrap gap-2">
               {bank.map((w, i) => (
                 <button key={i} disabled={answered} onClick={() => { setBuilt([...built, w]); setBank(bank.filter((_, j) => j !== i)) }}
-                  className="bg-gray-100 text-gray-800 px-3 py-1 rounded-lg font-medium hover:bg-gray-200">{w}</button>
+                  className="bg-surface-container-high text-on-surface px-3 py-1.5 rounded-lg font-button-text hover:bg-white/10">{w}</button>
               ))}
             </div>
-            {!answered && (
-              <button onClick={() => grade(built.join(' '))} disabled={built.length === 0}
-                className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">{t('Comprobar', 'Check')}</button>
-            )}
+            {!answered && <button onClick={() => grade(built.join(' '))} disabled={built.length === 0} className={`${checkBtn} disabled:opacity-50`}>{t('Comprobar', 'Check')}</button>}
           </div>
         )}
 
@@ -451,31 +474,22 @@ export default function PracticeView({ unitId, studentId }: Props) {
         {ex.type === 'listening' && (
           <div>
             <button type="button" onClick={() => speak(ex.payload.audio || ex.correct_answer)}
-              className="mb-4 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">
-              🔊 Escuchar {answered ? '' : '(toca para repetir)'}
+              className="mb-4 w-full bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-fixed py-3.5 rounded-xl font-button-text hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2">
+              <span className="material-symbols-outlined filled-icon">volume_up</span> Escuchar {answered ? '' : '(toca para repetir)'}
             </button>
             {ex.payload.options ? (
-              <div className="space-y-2">
-                {ex.payload.options.map((opt) => {
-                  let s = 'border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50'
-                  if (answered && norm(opt) === norm(ex.correct_answer)) s = 'border-2 border-green-500 bg-green-50'
-                  else if (answered && opt === chosen) s = 'border-2 border-red-400 bg-red-50'
-                  return (
-                    <button key={opt} disabled={answered} onClick={() => grade(opt)}
-                      className={`w-full text-left px-4 py-2.5 rounded-xl font-medium transition ${s}`}>{opt}</button>
-                  )
-                })}
+              <div className="space-y-3">
+                {ex.payload.options.map((opt) => (
+                  <button key={opt} disabled={answered} onClick={() => grade(opt)}
+                    className={optCls(!!answered && norm(opt) === norm(ex.correct_answer), !!answered && opt === chosen && norm(opt) !== norm(ex.correct_answer))}>{opt}</button>
+                ))}
               </div>
             ) : (
               <div>
                 <input value={input} onChange={(e) => setInput(e.target.value)} disabled={answered}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !answered && input.trim()) grade(input) }}
-                  placeholder="Escribe lo que escuchaste…"
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500" />
-                {!answered && (
-                  <button onClick={() => input.trim() && grade(input)}
-                    className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">{t('Comprobar', 'Check')}</button>
-                )}
+                  placeholder="Escribe lo que escuchaste…" className={inputCls} />
+                {!answered && <button onClick={() => input.trim() && grade(input)} className={checkBtn}>{t('Comprobar', 'Check')}</button>}
               </div>
             )}
           </div>
@@ -484,27 +498,27 @@ export default function PracticeView({ unitId, studentId }: Props) {
         {/* SPEAKING (di la frase; se transcribe y compara) */}
         {ex.type === 'speaking' && (
           <div className="text-center">
-            <div className="bg-purple-50 rounded-2xl p-4 mb-4 flex items-center justify-center gap-3">
-              <span className="text-lg font-semibold text-gray-800">{ex.payload.target || ex.correct_answer}</span>
-              <button type="button" onClick={() => speak(ex.payload.target || ex.correct_answer)} className="text-blue-500 text-xl">🔊</button>
+            <div className="glass-card rounded-2xl p-5 mb-5 flex items-center justify-center gap-3">
+              <span className="font-headline-md text-xl text-on-surface">{ex.payload.target || ex.correct_answer}</span>
+              <button type="button" onClick={() => speak(ex.payload.target || ex.correct_answer)} className="text-secondary">
+                <span className="material-symbols-outlined">volume_up</span>
+              </button>
             </div>
             {speechSupported() ? (
               <>
                 {!answered && (
                   <button onClick={startSpeak} disabled={recording}
-                    className={`w-full py-3 rounded-xl font-bold text-white ${recording ? 'bg-red-500 animate-pulse' : 'bg-purple-600 hover:bg-purple-700'}`}>
-                    {recording ? '🎙️ Escuchando… ¡habla ahora!' : '🎤 Hablar'}
+                    className={`w-24 h-24 rounded-full mx-auto flex items-center justify-center text-white transition-all ${recording ? 'bg-error animate-pulse shadow-[0_0_30px_rgba(255,180,171,0.5)]' : 'bg-gradient-to-tr from-primary to-secondary hover:scale-110 active:scale-95 shadow-lg shadow-primary/30'}`}>
+                    <span className="material-symbols-outlined text-4xl filled-icon">mic</span>
                   </button>
                 )}
-                {transcript && <p className="mt-3 text-sm text-gray-600">Dijiste: <span className="font-medium">&quot;{transcript}&quot;</span></p>}
+                <p className="text-on-surface-variant text-sm mt-3">{recording ? '🎙️ Escuchando… ¡habla ahora!' : 'Toca el micrófono y habla'}</p>
+                {transcript && <p className="mt-2 text-sm text-on-surface-variant">Dijiste: <span className="font-medium text-on-surface">&quot;{transcript}&quot;</span></p>}
               </>
             ) : (
               <>
-                <p className="text-sm text-gray-500 mb-3">Tu navegador no permite el micrófono. Léela en voz alta y márcala.</p>
-                {!answered && (
-                  <button onClick={() => grade(ex.correct_answer)}
-                    className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700">✓ Ya la practiqué</button>
-                )}
+                <p className="text-sm text-on-surface-variant mb-3">Tu navegador no permite el micrófono. Léela en voz alta y márcala.</p>
+                {!answered && <button onClick={() => grade(ex.correct_answer)} className={checkBtn}>✓ Ya la practiqué</button>}
               </>
             )}
           </div>
@@ -512,10 +526,13 @@ export default function PracticeView({ unitId, studentId }: Props) {
 
         {/* FEEDBACK */}
         {answered && (
-          <div className={`mt-4 p-4 rounded-xl ${isCorrect ? 'bg-green-50' : 'bg-amber-50'}`}>
-            <p className="font-semibold mb-1">{isCorrect ? t('✅ ¡Correcto!', '✅ Correct!') : `${t('❌ La respuesta correcta es:', '❌ The correct answer is:')} "${ex.correct_answer}"`}</p>
-            {ex.explanation && <p className="text-sm text-gray-600">{ex.explanation}</p>}
-            <button onClick={next} className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">
+          <div className={`mt-5 p-5 rounded-2xl border ${isCorrect ? 'bg-tertiary-container/20 border-tertiary/30' : 'bg-error-container/10 border-error/30'}`}>
+            <p className="font-button-text mb-1 flex items-center gap-2">
+              <span className={`material-symbols-outlined ${isCorrect ? 'text-tertiary' : 'text-error'}`}>{isCorrect ? 'check_circle' : 'cancel'}</span>
+              {isCorrect ? t('¡Correcto!', 'Correct!') : `${t('La respuesta correcta es:', 'The correct answer is:')} "${ex.correct_answer}"`}
+            </p>
+            {ex.explanation && <p className="text-sm text-on-surface-variant ml-8">{ex.explanation}</p>}
+            <button onClick={next} className="mt-4 w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-button-text hover:scale-[1.01] active:scale-95 transition-all">
               {idx + 1 >= queue.length ? t('Ver resultado 🏆', 'See result 🏆') : t('Siguiente →', 'Next →')}
             </button>
           </div>
