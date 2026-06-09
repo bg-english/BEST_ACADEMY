@@ -69,16 +69,30 @@ export interface AreaPerformance {
 }
 
 // ---- Motor de Teoría ----
+export interface DiscoverData {
+  type: 'tap' | 'sort'
+  instructions?: string
+  // tap: el alumno toca palabras para descubrir conceptos
+  sentence?: string
+  targets?: { word: string; label: string; note?: string }[]
+  // sort: el alumno clasifica elementos en categorías
+  categories?: string[]
+  items?: { text: string; category: string }[]
+  // mensaje final
+  conclusion?: string
+}
+
 export interface Topic {
   id: number
   unit_id: number
   order_index: number
-  kind: 'grammar' | 'vocabulary'
+  kind: 'grammar' | 'vocabulary' | 'discover'
   title: string
   explanation: string
   video_url?: string
   image_url?: string
   slides?: { image_url?: string; title?: string; text?: string }[]
+  discover?: DiscoverData
 }
 
 export interface TopicExample {

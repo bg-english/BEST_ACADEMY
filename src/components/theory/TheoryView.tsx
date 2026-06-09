@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Topic, StudentTopicProgress } from '@/lib/types'
 import GrammarTopic from './GrammarTopic'
 import VocabularyTopic from './VocabularyTopic'
+import DiscoverTopic from './DiscoverTopic'
 
 interface Props {
   unitId: number
@@ -39,7 +40,9 @@ export default function TheoryView({ unitId, studentId }: Props) {
 
   if (active) {
     const common = { topic: active, studentId, onComplete: handleComplete, onBack: () => { setActive(null); loadProgress() } }
-    return active.kind === 'vocabulary' ? <VocabularyTopic {...common} /> : <GrammarTopic {...common} />
+    if (active.kind === 'vocabulary') return <VocabularyTopic {...common} />
+    if (active.kind === 'discover') return <DiscoverTopic {...common} />
+    return <GrammarTopic {...common} />
   }
 
   if (loading) return <div className="text-center text-blue-200 py-10">Cargando teoría…</div>
@@ -57,10 +60,10 @@ export default function TheoryView({ unitId, studentId }: Props) {
       {topics.map((t) => (
         <button key={t.id} onClick={() => setActive(t)}
           className="w-full text-left bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition flex items-center gap-4">
-          <div className="text-3xl">{t.kind === 'vocabulary' ? '🗂️' : '📐'}</div>
+          <div className="text-3xl">{t.kind === 'vocabulary' ? '🗂️' : t.kind === 'discover' ? '🧩' : '📐'}</div>
           <div className="flex-1">
             <div className="text-xs font-bold uppercase text-purple-500">
-              {t.kind === 'vocabulary' ? 'Vocabulario' : 'Gramática'}
+              {t.kind === 'vocabulary' ? 'Vocabulario' : t.kind === 'discover' ? 'Descubre' : 'Gramática'}
             </div>
             <div className="font-bold text-gray-800">{t.title}</div>
           </div>
