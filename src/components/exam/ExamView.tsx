@@ -143,17 +143,17 @@ export default function ExamView({ mode, studentId, onClose }: Props) {
   // ---- INTRO ----
   if (phase === 'intro') {
     return (
-      <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
+      <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="glass-card glow-cyan rounded-3xl p-8 max-w-md w-full text-center">
           <div className="text-6xl mb-3">{cfg.emoji}</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">{cfg.title}</h2>
-          <p className="text-gray-500 mb-6">{cfg.desc}</p>
-          <p className="text-sm text-gray-400 mb-6">{cfg.size} preguntas · todas las habilidades</p>
+          <h2 className="font-headline-md text-2xl text-on-surface mb-2">{cfg.title}</h2>
+          <p className="text-on-surface-variant mb-6">{cfg.desc}</p>
+          <p className="font-stat-label text-stat-label text-secondary uppercase mb-6">{cfg.size} preguntas · todas las habilidades</p>
           <button onClick={start} disabled={all.length === 0}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:opacity-90 disabled:opacity-50 mb-2">
+            className="w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-button-text hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 mb-2">
             {all.length === 0 ? 'Cargando…' : 'Comenzar'}
           </button>
-          <button onClick={onClose} className="text-sm text-gray-400 hover:underline">Cancelar</button>
+          <button onClick={onClose} className="text-sm text-on-surface-variant hover:text-on-surface">Cancelar</button>
         </div>
       </div>
     )
@@ -166,27 +166,27 @@ export default function ExamView({ mode, studentId, onClose }: Props) {
     const maxLevel = Math.max(1, ...all.map((e) => e.level))
     const lvl = Math.max(1, Math.min(maxLevel, Math.round((correctCount / queue.length) * maxLevel)))
     return (
-      <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4 overflow-auto">
-        <div className="bg-white rounded-3xl p-6 max-w-md w-full text-center shadow-2xl my-6">
+      <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex items-center justify-center p-4 overflow-auto">
+        <div className="glass-card glow-cyan rounded-3xl p-6 max-w-md w-full text-center my-6">
           <div className="text-6xl mb-2">{mode === 'placement' ? '🧭' : passed ? '🏆' : '💪'}</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-1">
+          <h2 className="font-headline-md text-2xl text-on-surface mb-1">
             {mode === 'placement' ? '¡Listo tu nivel!' : passed ? '¡Aprobado!' : '¡Buen intento!'}
           </h2>
-          <p className="text-3xl font-extrabold text-blue-600 my-2">{correctCount}/{queue.length} <span className="text-lg text-gray-400">({pct}%)</span></p>
-          {mode === 'placement' && <p className="text-gray-600 mb-2">Te ubicamos en el <b>Nivel {lvl}</b>. ¡A practicar!</p>}
+          <p className="font-headline-md text-3xl text-secondary my-2">{correctCount}/{queue.length} <span className="text-lg text-on-surface-variant">({pct}%)</span></p>
+          {mode === 'placement' && <p className="text-on-surface-variant mb-2">Te ubicamos en el <b className="text-tertiary">Nivel {lvl}</b>. ¡A practicar!</p>}
 
-          <div className="text-left bg-gray-50 rounded-2xl p-4 my-4">
-            <p className="font-bold text-gray-700 mb-2 text-sm">Por habilidad:</p>
+          <div className="text-left bg-surface-container-lowest/60 rounded-2xl p-4 my-4">
+            <p className="font-button-text text-on-surface mb-2 text-sm">Por habilidad:</p>
             {Object.entries(bySkill).map(([area, s]) => {
               const p = Math.round((s.ok / s.total) * 100)
               return (
                 <div key={area} className="mb-2">
                   <div className="flex justify-between text-sm">
-                    <span className="capitalize text-gray-700">{area}</span>
-                    <span className="text-gray-400">{s.ok}/{s.total}</span>
+                    <span className="capitalize text-on-surface-variant">{area}</span>
+                    <span className="text-on-surface-variant">{s.ok}/{s.total}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1.5">
-                    <div className={`h-1.5 rounded-full ${p >= 70 ? 'bg-green-500' : p >= 40 ? 'bg-yellow-500' : 'bg-red-400'}`} style={{ width: `${p}%` }} />
+                  <div className="w-full bg-surface-container rounded-full h-1.5">
+                    <div className={`h-1.5 rounded-full ${p >= 70 ? 'bg-tertiary' : p >= 40 ? 'bg-amber-400' : 'bg-error'}`} style={{ width: `${p}%` }} />
                   </div>
                 </div>
               )
@@ -194,7 +194,7 @@ export default function ExamView({ mode, studentId, onClose }: Props) {
           </div>
 
           <button onClick={onClose}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:opacity-90">
+            className="w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-button-text hover:scale-[1.02] active:scale-95 transition-all">
             Terminar
           </button>
         </div>
@@ -204,41 +204,46 @@ export default function ExamView({ mode, studentId, onClose }: Props) {
 
   // ---- RUN ----
   if (!ex) return null
+  const optCls = (correct: boolean, wrong: boolean) =>
+    `w-full text-left px-5 py-4 rounded-2xl font-button-text border transition-all ${
+      correct ? 'border-tertiary bg-tertiary/10 text-tertiary'
+      : wrong ? 'border-error bg-error/10 text-error'
+      : 'glass-card border-white/10 hover:border-secondary/50 hover:scale-[1.01] text-on-surface'}`
+  const checkBtn = 'mt-4 w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-button-text hover:scale-[1.01] active:scale-95 transition-all'
+  const inputCls = 'w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/40 placeholder:text-outline/50'
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 p-4 overflow-auto">
+    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md p-4 overflow-auto">
       <div className="max-w-2xl mx-auto py-4">
-        <div className="flex justify-between items-center text-blue-100 mb-3">
-          <button onClick={onClose} className="hover:text-white">✕ Salir</button>
-          <span className="font-bold">{cfg.emoji} {cfg.title}</span>
-          <span>{idx + 1}/{queue.length}</span>
+        <div className="flex justify-between items-center text-on-surface-variant mb-3">
+          <button onClick={onClose} className="hover:text-on-surface flex items-center gap-1"><span className="material-symbols-outlined text-base">close</span> Salir</button>
+          <span className="font-button-text text-on-surface">{cfg.emoji} {cfg.title}</span>
+          <span className="font-stat-label text-secondary">{idx + 1}/{queue.length}</span>
         </div>
-        <div className="w-full bg-white/20 rounded-full h-2 mb-4">
-          <div className="bg-yellow-400 h-2 rounded-full transition-all" style={{ width: `${((idx) / queue.length) * 100}%` }} />
+        <div className="w-full bg-surface-container rounded-full h-2 mb-5">
+          <div className="bg-gradient-to-r from-tertiary to-secondary h-2 rounded-full transition-all" style={{ width: `${((idx) / queue.length) * 100}%` }} />
         </div>
 
-        <div className="bg-white rounded-3xl p-5 shadow-2xl">
-          <div className="text-xs text-gray-400 capitalize mb-2">{ex.area}</div>
-          <p className="text-lg font-semibold text-gray-800 mb-4">{ex.prompt}</p>
+        <div className="glass-card rounded-3xl p-6 md:p-8">
+          <div className="font-stat-label text-stat-label text-on-surface-variant capitalize mb-2">{ex.area}</div>
+          <p className="font-headline-md text-xl text-on-surface mb-5">{ex.prompt}</p>
 
           {ex.type === 'multiple_choice' && (
-            <div className="space-y-2">
-              {(ex.payload.options || []).map((opt) => {
-                let s = 'border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50'
-                if (answered && norm(opt) === norm(ex.correct_answer)) s = 'border-2 border-green-500 bg-green-50'
-                else if (answered && opt === chosen) s = 'border-2 border-red-400 bg-red-50'
-                return <button key={opt} disabled={answered} onClick={() => grade(opt)} className={`w-full text-left px-4 py-2.5 rounded-xl font-medium transition ${s}`}>{opt}</button>
-              })}
+            <div className="space-y-3">
+              {(ex.payload.options || []).map((opt) => (
+                <button key={opt} disabled={answered} onClick={() => grade(opt)}
+                  className={optCls(!!answered && norm(opt) === norm(ex.correct_answer), !!answered && opt === chosen && norm(opt) !== norm(ex.correct_answer))}>{opt}</button>
+              ))}
             </div>
           )}
 
           {ex.type === 'true_false' && (
             <div className="grid grid-cols-2 gap-3">
-              {['true', 'false'].map((v) => {
-                let s = 'border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50'
-                if (answered && v === norm(ex.correct_answer)) s = 'border-2 border-green-500 bg-green-50'
-                else if (answered && v === chosen) s = 'border-2 border-red-400 bg-red-50'
-                return <button key={v} disabled={answered} onClick={() => grade(v)} className={`px-4 py-3 rounded-xl font-bold transition ${s}`}>{v === 'true' ? '✔ Verdadero' : '✗ Falso'}</button>
-              })}
+              {['true', 'false'].map((v) => (
+                <button key={v} disabled={answered} onClick={() => grade(v)}
+                  className={`py-4 rounded-2xl font-button-text border transition-all ${answered && v === norm(ex.correct_answer) ? 'border-tertiary bg-tertiary/10 text-tertiary' : answered && v === chosen ? 'border-error bg-error/10 text-error' : 'glass-card border-white/10 hover:border-secondary/50 text-on-surface'}`}>
+                  {v === 'true' ? '✔ Verdadero' : '✗ Falso'}
+                </button>
+              ))}
             </div>
           )}
 
@@ -246,41 +251,39 @@ export default function ExamView({ mode, studentId, onClose }: Props) {
             <div>
               <input value={input} onChange={(e) => setInput(e.target.value)} disabled={answered}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !answered && input.trim()) grade(input) }}
-                placeholder="Escribe tu respuesta…" className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500" />
-              {!answered && <button onClick={() => input.trim() && grade(input)} className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">Comprobar</button>}
+                placeholder="Escribe tu respuesta…" className={inputCls} />
+              {!answered && <button onClick={() => input.trim() && grade(input)} className={checkBtn}>Comprobar</button>}
             </div>
           )}
 
           {ex.type === 'reorder' && (
             <div>
-              <div className="min-h-[48px] border-2 border-dashed border-gray-200 rounded-xl p-2 mb-3 flex flex-wrap gap-2">
-                {built.map((w, i) => <button key={i} disabled={answered} onClick={() => { setBuilt(built.filter((_, j) => j !== i)); setBank([...bank, w]) }} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg font-medium">{w}</button>)}
+              <div className="min-h-[52px] border-2 border-dashed border-white/10 rounded-xl p-2 mb-3 flex flex-wrap gap-2 bg-surface-container-lowest/50">
+                {built.map((w, i) => <button key={i} disabled={answered} onClick={() => { setBuilt(built.filter((_, j) => j !== i)); setBank([...bank, w]) }} className="bg-secondary/15 text-secondary px-3 py-1.5 rounded-lg font-button-text">{w}</button>)}
               </div>
               <div className="flex flex-wrap gap-2">
-                {bank.map((w, i) => <button key={i} disabled={answered} onClick={() => { setBuilt([...built, w]); setBank(bank.filter((_, j) => j !== i)) }} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-lg font-medium hover:bg-gray-200">{w}</button>)}
+                {bank.map((w, i) => <button key={i} disabled={answered} onClick={() => { setBuilt([...built, w]); setBank(bank.filter((_, j) => j !== i)) }} className="bg-surface-container-high text-on-surface px-3 py-1.5 rounded-lg font-button-text hover:bg-white/10">{w}</button>)}
               </div>
-              {!answered && <button onClick={() => grade(built.join(' '))} disabled={built.length === 0} className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">Comprobar</button>}
+              {!answered && <button onClick={() => grade(built.join(' '))} disabled={built.length === 0} className={`${checkBtn} disabled:opacity-50`}>Comprobar</button>}
             </div>
           )}
 
           {ex.type === 'listening' && (
             <div>
-              <button type="button" onClick={() => speak(ex.payload.audio || ex.correct_answer)} className="mb-4 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">🔊 Escuchar</button>
+              <button type="button" onClick={() => speak(ex.payload.audio || ex.correct_answer)} className="mb-4 w-full bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-fixed py-3.5 rounded-xl font-button-text hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2"><span className="material-symbols-outlined filled-icon">volume_up</span> Escuchar</button>
               {ex.payload.options ? (
-                <div className="space-y-2">
-                  {ex.payload.options.map((opt) => {
-                    let s = 'border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50'
-                    if (answered && norm(opt) === norm(ex.correct_answer)) s = 'border-2 border-green-500 bg-green-50'
-                    else if (answered && opt === chosen) s = 'border-2 border-red-400 bg-red-50'
-                    return <button key={opt} disabled={answered} onClick={() => grade(opt)} className={`w-full text-left px-4 py-2.5 rounded-xl font-medium transition ${s}`}>{opt}</button>
-                  })}
+                <div className="space-y-3">
+                  {ex.payload.options.map((opt) => (
+                    <button key={opt} disabled={answered} onClick={() => grade(opt)}
+                      className={optCls(!!answered && norm(opt) === norm(ex.correct_answer), !!answered && opt === chosen && norm(opt) !== norm(ex.correct_answer))}>{opt}</button>
+                  ))}
                 </div>
               ) : (
                 <div>
                   <input value={input} onChange={(e) => setInput(e.target.value)} disabled={answered}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !answered && input.trim()) grade(input) }}
-                    placeholder="Escribe lo que escuchaste…" className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-blue-500" />
-                  {!answered && <button onClick={() => input.trim() && grade(input)} className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">Comprobar</button>}
+                    placeholder="Escribe lo que escuchaste…" className={inputCls} />
+                  {!answered && <button onClick={() => input.trim() && grade(input)} className={checkBtn}>Comprobar</button>}
                 </div>
               )}
             </div>
@@ -288,26 +291,26 @@ export default function ExamView({ mode, studentId, onClose }: Props) {
 
           {ex.type === 'speaking' && (
             <div className="text-center">
-              <div className="bg-purple-50 rounded-2xl p-4 mb-4 flex items-center justify-center gap-3">
-                <span className="text-lg font-semibold text-gray-800">{ex.payload.target || ex.correct_answer}</span>
-                <button type="button" onClick={() => speak(ex.payload.target || ex.correct_answer)} className="text-blue-500 text-xl">🔊</button>
+              <div className="glass-card rounded-2xl p-5 mb-5 flex items-center justify-center gap-3">
+                <span className="font-headline-md text-xl text-on-surface">{ex.payload.target || ex.correct_answer}</span>
+                <button type="button" onClick={() => speak(ex.payload.target || ex.correct_answer)} className="text-secondary"><span className="material-symbols-outlined">volume_up</span></button>
               </div>
               {speechSupported() ? (
                 <>
-                  {!answered && <button onClick={startSpeak} disabled={recording} className={`w-full py-3 rounded-xl font-bold text-white ${recording ? 'bg-red-500 animate-pulse' : 'bg-purple-600 hover:bg-purple-700'}`}>{recording ? '🎙️ Escuchando…' : '🎤 Hablar'}</button>}
-                  {transcript && <p className="mt-3 text-sm text-gray-600">Dijiste: <span className="font-medium">&quot;{transcript}&quot;</span></p>}
+                  {!answered && <button onClick={startSpeak} disabled={recording} className={`w-24 h-24 rounded-full mx-auto flex items-center justify-center text-white transition-all ${recording ? 'bg-error animate-pulse shadow-[0_0_30px_rgba(255,180,171,0.5)]' : 'bg-gradient-to-tr from-primary to-secondary hover:scale-110 active:scale-95 shadow-lg shadow-primary/30'}`}><span className="material-symbols-outlined text-4xl filled-icon">mic</span></button>}
+                  {transcript && <p className="mt-3 text-sm text-on-surface-variant">Dijiste: <span className="font-medium text-on-surface">&quot;{transcript}&quot;</span></p>}
                 </>
               ) : (
-                !answered && <button onClick={() => grade(ex.correct_answer)} className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700">✓ Ya la practiqué</button>
+                !answered && <button onClick={() => grade(ex.correct_answer)} className={checkBtn}>✓ Ya la practiqué</button>
               )}
             </div>
           )}
 
           {answered && (
-            <div className={`mt-4 p-4 rounded-xl ${ok ? 'bg-green-50' : 'bg-amber-50'}`}>
-              <p className="font-semibold mb-1">{ok ? '✅ ¡Correcto!' : `❌ Respuesta: "${ex.correct_answer}"`}</p>
-              {ex.explanation && <p className="text-sm text-gray-600">{ex.explanation}</p>}
-              <button onClick={next} className="mt-3 w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold hover:bg-blue-700">{idx + 1 >= queue.length ? 'Ver resultado 🏁' : 'Siguiente →'}</button>
+            <div className={`mt-5 p-5 rounded-2xl border ${ok ? 'bg-tertiary-container/20 border-tertiary/30' : 'bg-error-container/10 border-error/30'}`}>
+              <p className="font-button-text mb-1 flex items-center gap-2"><span className={`material-symbols-outlined ${ok ? 'text-tertiary' : 'text-error'}`}>{ok ? 'check_circle' : 'cancel'}</span>{ok ? '¡Correcto!' : `Respuesta: "${ex.correct_answer}"`}</p>
+              {ex.explanation && <p className="text-sm text-on-surface-variant ml-8">{ex.explanation}</p>}
+              <button onClick={next} className="mt-4 w-full bg-gradient-to-r from-primary to-secondary text-on-primary py-3 rounded-xl font-button-text hover:scale-[1.01] active:scale-95 transition-all">{idx + 1 >= queue.length ? 'Ver resultado 🏁' : 'Siguiente →'}</button>
             </div>
           )}
         </div>
