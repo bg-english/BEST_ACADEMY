@@ -45,31 +45,47 @@ export default function TheoryView({ unitId, studentId }: Props) {
     return <GrammarTopic {...common} />
   }
 
-  if (loading) return <div className="text-center text-blue-200 py-10">Cargando teoría…</div>
+  if (loading) return <div className="text-center text-on-surface-variant py-10 animate-pulse">Cargando teoría…</div>
 
   if (topics.length === 0) {
     return (
-      <div className="bg-white/10 rounded-2xl p-8 text-center text-blue-100">
+      <div className="glass-card rounded-3xl p-8 text-center text-on-surface-variant">
         Aún no hay temas de teoría para esta unidad.
       </div>
     )
   }
 
   return (
-    <div className="space-y-3 max-w-2xl mx-auto">
-      {topics.map((t) => (
-        <button key={t.id} onClick={() => setActive(t)}
-          className="w-full text-left bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition flex items-center gap-4">
-          <div className="text-3xl">{t.kind === 'vocabulary' ? '🗂️' : t.kind === 'discover' ? '🧩' : '📐'}</div>
-          <div className="flex-1">
-            <div className="text-xs font-bold uppercase text-purple-500">
-              {t.kind === 'vocabulary' ? 'Vocabulario' : t.kind === 'discover' ? 'Descubre' : 'Gramática'}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+      {topics.map((t) => {
+        const k = KIND[t.kind] ?? KIND.grammar
+        const done = progress[t.id]
+        return (
+          <button key={t.id} onClick={() => setActive(t)}
+            className="glass-card interactive-card rounded-[32px] p-8 flex flex-col gap-6 group text-left">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${k.box}`}>
+              <span className="material-symbols-outlined text-[32px] filled-icon">{k.icon}</span>
             </div>
-            <div className="font-bold text-gray-800">{t.title}</div>
-          </div>
-          {progress[t.id] ? <span className="text-2xl">✅</span> : <span className="text-gray-300 text-2xl">▶</span>}
-        </button>
-      ))}
+            <div className="flex-1">
+              <span className={`font-stat-label text-stat-label px-3 py-1 rounded-full border ${k.chip}`}>{k.tag}</span>
+              <h3 className="font-headline-md text-[22px] text-on-surface mt-4">{t.title}</h3>
+              {t.explanation && <p className="text-on-surface-variant text-body-md mt-2 line-clamp-2">{t.explanation}</p>}
+            </div>
+            <div className="mt-auto flex items-center justify-between pt-6 border-t border-white/5">
+              <span className={`flex items-center gap-2 font-button-text text-sm ${done ? 'text-tertiary' : 'text-secondary'}`}>
+                {done ? '✅ Completo' : '▶ Empezar'}
+              </span>
+              <span className="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+            </div>
+          </button>
+        )
+      })}
     </div>
   )
+}
+
+const KIND: Record<string, { icon: string; tag: string; box: string; chip: string }> = {
+  grammar: { icon: 'book', tag: 'Gramática', box: 'bg-tertiary/10 text-tertiary', chip: 'text-tertiary bg-tertiary/10 border-tertiary/20' },
+  vocabulary: { icon: 'translate', tag: 'Vocabulario', box: 'bg-secondary/10 text-secondary', chip: 'text-secondary bg-secondary/10 border-secondary/20' },
+  discover: { icon: 'rocket_launch', tag: 'Interactivo', box: 'bg-primary/10 text-primary', chip: 'text-primary bg-primary/10 border-primary/20' },
 }
