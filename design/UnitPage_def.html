@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BEST Academy - Unidad 2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Space+Grotesk:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#121f00",
+                    "surface-container": "#1a1f30",
+                    "on-primary-container": "#ede0ff",
+                    "on-primary-fixed": "#25005a",
+                    "inverse-surface": "#dee1f9",
+                    "surface-container-low": "#161b2b",
+                    "background": "#0e1323",
+                    "surface-dim": "#0e1323",
+                    "on-primary": "#3f008e",
+                    "secondary-fixed-dim": "#2fd9f4",
+                    "primary-container": "#7c3aed",
+                    "on-secondary-container": "#00515d",
+                    "on-tertiary-container": "#b6fb49",
+                    "on-background": "#dee1f9",
+                    "on-tertiary": "#213600",
+                    "on-surface": "#dee1f9",
+                    "tertiary": "#98da27",
+                    "primary": "#d2bbff",
+                    "on-secondary-fixed-variant": "#004e5a",
+                    "primary-fixed-dim": "#d2bbff",
+                    "surface-container-high": "#25293a",
+                    "tertiary-container": "#4b7200",
+                    "inverse-primary": "#732ee4",
+                    "surface-tint": "#d2bbff",
+                    "secondary": "#5de6ff",
+                    "primary-fixed": "#eaddff",
+                    "surface-bright": "#34394a",
+                    "on-secondary": "#00363e",
+                    "on-surface-variant": "#ccc3d8",
+                    "error-container": "#93000a",
+                    "secondary-container": "#00cbe6",
+                    "error": "#ffb4ab",
+                    "on-error": "#690005",
+                    "surface-variant": "#2f3446",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-fixed": "#b2f746",
+                    "secondary-fixed": "#a2eeff",
+                    "inverse-on-surface": "#2b3041",
+                    "on-primary-fixed-variant": "#5a00c6",
+                    "tertiary-fixed-dim": "#98da27",
+                    "outline": "#958da1",
+                    "surface": "#0e1323",
+                    "surface-container-lowest": "#080d1d",
+                    "outline-variant": "#4a4455",
+                    "surface-container-highest": "#2f3446",
+                    "on-secondary-fixed": "#001f25",
+                    "on-tertiary-fixed-variant": "#334f00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "max-width": "1280px",
+                    "gutter": "24px",
+                    "unit": "8px",
+                    "margin-edge": "40px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "stat-label": ["Plus Jakarta Sans"],
+                    "headline-md": ["Space Grotesk"],
+                    "body-lg": ["Inter"],
+                    "button-text": ["Space Grotesk"],
+                    "display-lg": ["Space Grotesk"],
+                    "display-lg-mobile": ["Space Grotesk"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "stat-label": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "button-text": ["16px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0e1323;
+            color: #dee1f9;
+            overflow-x: hidden;
+        }
+        .neon-grid {
+            background-image: 
+                linear-gradient(to right, rgba(93, 230, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(93, 230, 255, 0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glass-card {
+            background: rgba(26, 31, 48, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(93, 230, 255, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px -10px rgba(93, 230, 255, 0.2);
+        }
+        .glow-button {
+            transition: all 0.2s ease;
+        }
+        .glow-button:active {
+            transform: scale(0.96);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md selection:bg-secondary/30">
+<!-- Subtle Background Elements -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden">
+<div class="absolute inset-0 neon-grid"></div>
+<div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full"></div>
+<div class="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-secondary/10 blur-[120px] rounded-full"></div>
+</div>
+<!-- Layout Shell -->
+<div class="relative min-h-screen flex flex-col md:flex-row">
+<!-- Sidebar Navigation (Predicted from JSON) -->
+<nav class="fixed left-0 top-0 h-full z-40 flex flex-col pt-24 pb-8 bg-surface-container/60 backdrop-blur-2xl border-r border-white/5 shadow-2xl shadow-black/50 w-64 hidden md:flex">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/10">
+<img alt="User Profile" class="w-10 h-10 rounded-full bg-primary-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwZ0vojeUay4CH0eC6rJASbUrpa2lffpMVpl4DEtkd4wstquCufG_bxC6sgKbOnFjGDh_s7AUgzhW2a3Gd6e45raKT_6MAEprCiqLaGu-kXnmuHAE1Z3WG-vS52UYG98YO3RtVIZ_jz6fYkKCAoQgM1wRDFo-aCiU9G1hg_rpaz5nCnTGG1_Mh8PqbU2i8Krytkr34lHETJKZH4hWj4T7_O76dyqi2x3aKcRDtBFQhjE82-A_bIKPLdfijyLqoCyobQiIACrKkNRw"/>
+<div>
+<p class="font-button-text text-button-text text-on-surface">Level 24</p>
+<p class="text-[12px] text-on-surface-variant leading-tight">Star Navigator</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-button-text text-button-text">Home</span>
+</a>
+<a class="bg-gradient-to-r from-primary/20 to-transparent text-secondary border-l-4 border-secondary flex items-center gap-4 px-6 py-4 transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined fill-icon" data-icon="extension" style="font-variation-settings: 'FILL' 1;">extension</span>
+<span class="font-button-text text-button-text">Units</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-button-text text-button-text">Leaderboard</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-1">
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-button-text text-button-text">Settings</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-button-text text-button-text">Help</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 px-margin-edge py-8">
+<!-- Header Section -->
+<header class="flex flex-col gap-6 mb-12">
+<div class="flex items-center gap-4">
+<button class="w-12 h-12 rounded-xl flex items-center justify-center bg-surface-container-high border border-white/10 text-on-surface hover:bg-white/10 transition-colors active:scale-90">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div>
+<h1 class="font-headline-md text-headline-md text-on-surface tracking-tight">Unidad 2: Explorando el Espacio</h1>
+<p class="text-on-surface-variant font-body-md opacity-80">Domina el vocabulario y gramática para misiones interestelares.</p>
+</div>
+</div>
+<!-- Large Sliding Pill Tabs -->
+<div class="relative w-full max-w-md p-1.5 bg-surface-container-lowest border border-white/5 rounded-2xl flex">
+<!-- Active Indicator Background -->
+<div class="absolute inset-y-1.5 left-1.5 w-[calc(50%-6px)] bg-primary-container/20 border border-primary/20 rounded-xl transition-all duration-300"></div>
+<button class="relative z-10 flex-1 py-3 px-6 flex items-center justify-center gap-2 font-button-text text-button-text text-primary">
+<span>📘</span>
+<span>Teoría</span>
+</button>
+<button class="relative z-10 flex-1 py-3 px-6 flex items-center justify-center gap-2 font-button-text text-button-text text-on-surface-variant hover:text-on-surface transition-colors">
+<span>🏋️</span>
+<span>Práctica</span>
+</button>
+</div>
+</header>
+<!-- Theory Tab Content: Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Grammar Card -->
+<div class="glass-card rounded-[32px] p-8 flex flex-col gap-6 group cursor-pointer">
+<div class="w-14 h-14 rounded-2xl bg-tertiary/10 flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px] fill-icon" data-icon="book" style="font-variation-settings: 'FILL' 1;">book</span>
+</div>
+<div>
+<span class="font-stat-label text-stat-label text-tertiary bg-tertiary/10 px-3 py-1 rounded-full border border-tertiary/20">Gramática</span>
+<h3 class="font-headline-md text-[24px] text-on-surface mt-4">Estructuras Estelares</h3>
+<p class="text-on-surface-variant text-body-md mt-2">Aprende los tiempos verbales para reportes galácticos.</p>
+</div>
+<div class="mt-auto flex items-center justify-between pt-6 border-t border-white/5">
+<span class="flex items-center gap-2 text-tertiary font-button-text">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle">check_circle</span>
+                            ✅ Completo
+                        </span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Vocabulary Card -->
+<div class="glass-card rounded-[32px] p-8 flex flex-col gap-6 group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+</div>
+<div class="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px] fill-icon" data-icon="translate" style="font-variation-settings: 'FILL' 1;">translate</span>
+</div>
+<div>
+<span class="font-stat-label text-stat-label text-secondary bg-secondary/10 px-3 py-1 rounded-full border border-secondary/20">Vocabulario</span>
+<h3 class="font-headline-md text-[24px] text-on-surface mt-4">Diccionario Cósmico</h3>
+<p class="text-on-surface-variant text-body-md mt-2">Palabras clave para identificar planetas y nebulosas.</p>
+</div>
+<div class="mt-auto flex items-center justify-between pt-6 border-t border-white/5">
+<span class="flex items-center gap-2 text-secondary font-button-text">
+<span class="material-symbols-outlined text-[18px]" data-icon="play_circle">play_circle</span>
+                            ▶ En curso
+                        </span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Video Card -->
+<div class="glass-card rounded-[32px] p-8 flex flex-col gap-6 group cursor-pointer">
+<div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px] fill-icon" data-icon="movie" style="font-variation-settings: 'FILL' 1;">movie</span>
+</div>
+<div>
+<span class="font-stat-label text-stat-label text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">Video</span>
+<h3 class="font-headline-md text-[24px] text-on-surface mt-4">Documental: Alpha Centauri</h3>
+<p class="text-on-surface-variant text-body-md mt-2">Observa la vida en otros sistemas solares en HD.</p>
+</div>
+<div class="mt-auto flex items-center justify-between pt-6 border-t border-white/5">
+<span class="flex items-center gap-2 text-on-surface-variant font-button-text">
+<span class="material-symbols-outlined text-[18px]" data-icon="visibility">visibility</span>
+                            ▶ Por ver
+                        </span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Interactive Card -->
+<div class="glass-card rounded-[32px] p-8 flex flex-col gap-6 group cursor-pointer border-dashed border-white/20 hover:border-solid">
+<div class="w-14 h-14 rounded-2xl bg-on-tertiary-container/10 flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px] fill-icon" data-icon="rocket_launch" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+</div>
+<div>
+<span class="font-stat-label text-stat-label text-on-surface-variant bg-white/5 px-3 py-1 rounded-full border border-white/10">Interactivo</span>
+<h3 class="font-headline-md text-[24px] text-on-surface mt-4">Simulador de Vuelo</h3>
+<p class="text-on-surface-variant text-body-md mt-2">Pon a prueba tus conocimientos pilotando la nave BEST.</p>
+</div>
+<div class="mt-auto flex items-center justify-between pt-6 border-t border-white/5">
+<span class="flex items-center gap-2 text-on-surface-variant font-button-text">
+<span class="material-symbols-outlined text-[18px]" data-icon="lock_open">lock_open</span>
+                            ▶ Por descubrir
+                        </span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Featured Section (Bottom Row) -->
+<section class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<div class="lg:col-span-2 glass-card rounded-[32px] p-8 overflow-hidden relative">
+<div class="relative z-10">
+<h2 class="font-headline-md text-on-surface mb-2">Proyecto de Unidad</h2>
+<p class="text-on-surface-variant mb-6 max-w-md">Diseña tu propia base espacial usando los conceptos de ingeniería y vocabulario aprendidos.</p>
+<button class="bg-primary text-on-primary font-button-text py-4 px-8 rounded-2xl flex items-center gap-2 glow-button hover:shadow-[0_0_20px_rgba(210,187,255,0.4)]">
+<span class="material-symbols-outlined" data-icon="rocket">rocket</span>
+                            Comenzar Proyecto
+                        </button>
+</div>
+<!-- Background Visual for Project Card -->
+<div class="absolute -right-20 -bottom-20 w-80 h-80 opacity-20 group-hover:opacity-40 transition-opacity">
+<img alt="Project Visual" class="w-full h-full rotate-12" data-alt="A highly detailed 3D digital illustration of a futuristic modular Mars base station. The station features glowing cyan observation domes and white metallic corridors, set against a dark indigo Martian night sky filled with distant nebulas and stars. The lighting is dramatic and cinematic, with soft neon purple accents reflecting off the metallic surfaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuANkMbi04hVn1IqzsQK8oMp__RwFuEB0yMjbjp7cMNcVm0ubwcrJXO9F6J4xULewBjzVBXmyruqALgYSrHEeaXTpBtdxx-PXAwW30uc3LNnxw9i2QqR6ofWQykOQsGf9qZBMc1ItBMsUJVUgAPAwUrChITMSNYYl-UMJ1QzCvUg1IJZ_9ZfheghiVBRNk58t90isJ1wGRCu6-C6Z9Gi6yZImVfwnxWbCPTJSQiHdSYxGxzM25nEK1MpBpjULhPtxrp6wh_NtvJBg9M"/>
+</div>
+</div>
+<div class="glass-card rounded-[32px] p-8 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<p class="font-stat-label text-stat-label text-on-surface-variant uppercase tracking-widest">Tu Progreso</p>
+<span class="text-secondary font-headline-md text-[24px]">45%</span>
+</div>
+<div class="w-full h-3 bg-white/5 rounded-full overflow-hidden mb-6">
+<div class="h-full bg-gradient-to-r from-secondary to-primary rounded-full relative" style="width: 45%;">
+<div class="absolute inset-0 bg-white/20 animate-[pulse_3s_infinite]"></div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="stars">stars</span>
+<span class="text-body-md">+250 XP pendientes</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="military_tech">military_tech</span>
+<span class="text-body-md">Insignia "Cadete Espacial"</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Mobile Top Bar (Responsive fallback) -->
+<div class="md:hidden fixed top-0 w-full z-50 flex justify-between items-center px-6 h-20 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-[0_0_20px_rgba(210,187,255,0.1)]">
+<span class="font-headline-md text-[24px] font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">BEST Academy</span>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-secondary" data-icon="local_fire_department">local_fire_department</span>
+<span class="material-symbols-outlined text-primary" data-icon="military_tech">military_tech</span>
+</div>
+</div>
+<script>
+        // Simple tab switching logic for demo purposes
+        const tabs = document.querySelectorAll('button.relative.z-10');
+        const activeBg = document.querySelector('.absolute.inset-y-1.5');
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                // Update styling
+                tabs.forEach(t => {
+                    t.classList.remove('text-primary');
+                    t.classList.add('text-on-surface-variant');
+                });
+                tab.classList.remove('text-on-surface-variant');
+                tab.classList.add('text-primary');
+
+                // Move background pill
+                if (index === 0) {
+                    activeBg.style.left = '6px';
+                    activeBg.style.transform = 'translateX(0)';
+                } else {
+                    activeBg.style.left = '50%';
+                    activeBg.style.transform = 'translateX(0)';
+                }
+            });
+        });
+    </script>
+</body></html>

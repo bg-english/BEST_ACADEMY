@@ -3,19 +3,57 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --foreground-rgb: 222, 225, 249;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: radial-gradient(circle at 50% 0%, #161b2b 0%, #0e1323 60%, #080d1d 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* ---- Sistema de diseño Neo-Arcade ---- */
+.glass-card {
+  background: rgba(11, 16, 32, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.glass-card-hover:hover {
+  border-color: rgba(93, 230, 255, 0.5);
+}
+.glow-cyan { box-shadow: 0 0 20px rgba(93, 230, 255, 0.3); }
+.glow-cyan:hover { box-shadow: 0 0 30px rgba(93, 230, 255, 0.5); }
+.glow-violet { box-shadow: 0 0 20px rgba(124, 58, 237, 0.35); }
+.glow-lime { box-shadow: 0 0 18px rgba(152, 218, 39, 0.35); }
+
+.pin-input:focus {
+  box-shadow: 0 0 0 2px #5de6ff, 0 0 15px rgba(93, 230, 255, 0.4);
+}
+
+/* Estrellas del fondo */
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: twinkle var(--duration, 3s) infinite ease-in-out;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+/* Barra de XP con barrido de luz */
+@keyframes xp-sweep {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.xp-shimmer {
+  background-image: linear-gradient(90deg, #98da27, #5de6ff, #98da27);
+  background-size: 200% 100%;
+  animation: xp-sweep 3s linear infinite;
 }
 
 .xp-bar {

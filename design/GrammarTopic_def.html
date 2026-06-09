@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=Plus+Jakarta+Sans:wght@700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Space+Grotesk:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#121f00",
+                        "surface-container": "#1a1f30",
+                        "on-primary-container": "#ede0ff",
+                        "on-primary-fixed": "#25005a",
+                        "inverse-surface": "#dee1f9",
+                        "surface-container-low": "#161b2b",
+                        "background": "#0e1323",
+                        "surface-dim": "#0e1323",
+                        "on-primary": "#3f008e",
+                        "secondary-fixed-dim": "#2fd9f4",
+                        "primary-container": "#7c3aed",
+                        "on-secondary-container": "#00515d",
+                        "on-tertiary-container": "#b6fb49",
+                        "on-background": "#dee1f9",
+                        "on-tertiary": "#213600",
+                        "on-surface": "#dee1f9",
+                        "tertiary": "#98da27",
+                        "primary": "#d2bbff",
+                        "on-secondary-fixed-variant": "#004e5a",
+                        "primary-fixed-dim": "#d2bbff",
+                        "surface-container-high": "#25293a",
+                        "tertiary-container": "#4b7200",
+                        "inverse-primary": "#732ee4",
+                        "surface-tint": "#d2bbff",
+                        "secondary": "#5de6ff",
+                        "primary-fixed": "#eaddff",
+                        "surface-bright": "#34394a",
+                        "on-secondary": "#00363e",
+                        "on-surface-variant": "#ccc3d8",
+                        "error-container": "#93000a",
+                        "secondary-container": "#00cbe6",
+                        "error": "#ffb4ab",
+                        "on-error": "#690005",
+                        "surface-variant": "#2f3446",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#b2f746",
+                        "secondary-fixed": "#a2eeff",
+                        "inverse-on-surface": "#2b3041",
+                        "on-primary-fixed-variant": "#5a00c6",
+                        "tertiary-fixed-dim": "#98da27",
+                        "outline": "#958da1",
+                        "surface": "#0e1323",
+                        "surface-container-lowest": "#080d1d",
+                        "outline-variant": "#4a4455",
+                        "surface-container-highest": "#2f3446",
+                        "on-secondary-fixed": "#001f25",
+                        "on-tertiary-fixed-variant": "#334f00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "max-width": "1280px",
+                        "gutter": "24px",
+                        "unit": "8px",
+                        "margin-edge": "40px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "stat-label": ["Plus Jakarta Sans"],
+                        "headline-md": ["Space Grotesk"],
+                        "body-lg": ["Inter"],
+                        "button-text": ["Space Grotesk"],
+                        "display-lg": ["Space Grotesk"],
+                        "display-lg-mobile": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "stat-label": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "headline-md": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "button-text": ["16px", {"lineHeight": "20px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0e1323;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(26, 31, 48, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-secondary {
+            box-shadow: 0 0 20px rgba(93, 230, 255, 0.15);
+        }
+        .particle {
+            position: absolute;
+            color: rgba(210, 187, 255, 0.06);
+            font-family: 'Space Grotesk', sans-serif;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+        .grammar-highlight {
+            color: #5de6ff;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(93, 230, 255, 0.4);
+        }
+        .action-button-glow:hover {
+            box-shadow: 0 0 25px rgba(210, 187, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- Background Animation Layer -->
+<div class="fixed inset-0 overflow-hidden" id="particle-container"></div>
+<!-- Navigation Shell (TopAppBar from JSON) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-edge h-20 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-[0_0_20px_rgba(210,187,255,0.1)]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">school</span>
+<h1 class="font-headline-md text-headline-md font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">BEST Academy</h1>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-8">
+<a class="text-on-surface-variant font-button-text text-button-text hover:scale-105 transition-transform duration-200" href="#">Home</a>
+<a class="text-secondary font-bold font-button-text text-button-text hover:scale-105 transition-transform duration-200" href="#">Units</a>
+<a class="text-on-surface-variant font-button-text text-button-text hover:scale-105 transition-transform duration-200" href="#">Leaderboard</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary hover:scale-105 transition-transform duration-200 cursor-pointer">local_fire_department</span>
+<span class="material-symbols-outlined text-primary hover:scale-105 transition-transform duration-200 cursor-pointer">military_tech</span>
+<div class="w-10 h-10 rounded-full border-2 border-primary/30 p-0.5 overflow-hidden">
+<img alt="Student Avatar" class="w-full h-full object-cover rounded-full" data-alt="A stylized 3D avatar profile picture of a young futuristic student wearing high-tech glasses. The portrait is set against a deep navy cosmic background with soft cyan and lavender rim lighting, matching the space-tech academy aesthetic. The lighting is crisp and modern, emphasizing the glassmorphism themes of the UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSX6brQIoWVn8xZuIO1sxR7b0AKYNenD9tYZRQbjgGP_dOswU3TOQkO6ru3bLBK0kxZqU8hpqV6MtatIJSTW-qo2i___HgB-fYNWLJlQTKclQyYjOzspj-Kh4DdtHtA_0ZcgaADh5uJ_TmQ4bkslZGkWy5Z1EDL6tU8gaMFvP_PQAHPFZzyBbffrSabivWwqSnAGT5MjIe2tjlB5n9wwe1T3Qh-Zza1zRX-WSEjXfC4EdJcAROKjme70LRUaiNulm-FF7TwFoibBw"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Side Navigation (SideNavBar from JSON - Active: Units) -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-24 pb-8 bg-surface-container/60 backdrop-blur-2xl border-r border-white/5 shadow-2xl shadow-black/50 w-64 rounded-r-3xl hidden md:flex">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-4 mb-2">
+<div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">rocket_launch</span>
+</div>
+<div>
+<p class="font-headline-md text-xl font-bold text-secondary">Level 24</p>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest font-stat-label">Star Navigator</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-button-text text-button-text">Home</span>
+</a>
+<a class="bg-gradient-to-r from-primary/20 to-transparent text-secondary border-l-4 border-secondary flex items-center gap-4 px-6 py-4 transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">extension</span>
+<span class="font-button-text text-button-text">Units</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-button-text text-button-text">Leaderboard</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-2 pt-4 border-t border-white/5">
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-button-text text-button-text">Settings</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-4 px-6 py-4 hover:bg-white/5 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-button-text text-button-text">Help</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="relative pt-24 pb-32 px-margin-edge md:ml-64 min-h-screen z-10">
+<!-- Header Section -->
+<div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<nav class="flex items-center gap-2 text-primary font-stat-label text-stat-label mb-2">
+<span>Units</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span>Level 2: Verb Tenses</span>
+</nav>
+<h2 class="font-headline-md text-display-lg-mobile md:text-display-lg text-on-surface">Grammar: <span class="text-secondary">Present Continuous</span></h2>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low px-6 py-3 rounded-2xl glass-panel">
+<div class="text-right">
+<p class="font-stat-label text-stat-label text-on-surface-variant">CURRENT XP</p>
+<p class="font-headline-md text-2xl text-tertiary">4,250</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+</div>
+</div>
+<!-- Landscape Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Media Area: 16:9 Video Player -->
+<div class="lg:col-span-7 group">
+<div class="relative aspect-video rounded-[2rem] overflow-hidden glass-panel border-2 border-white/10 glow-secondary transition-all duration-500 group-hover:border-secondary/40">
+<!-- Video Placeholder Container -->
+<div class="absolute inset-0 bg-surface-container-highest flex items-center justify-center">
+<img alt="Lesson Video Thumbnail" class="w-full h-full object-cover opacity-60" data-alt="A cinematic, high-definition classroom visual of a futuristic laboratory where a holographic teacher explains English grammar. Vibrant cyan and magenta energy lines flow through the air, illustrating the concept of 'continuous' action. The atmosphere is energetic and educational, with deep indigo backgrounds and glowing floating particles." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYOjAPdcluZdGWqGYq2WrCCNtwv_ZX_uIfyLbWo3l1mHVWHTzef0ZbqoSRZ7ukPq3T_iFPkYPSTMkaQim9oEltVebd6NRzZ58zC9M45-j3DpjDhLheVWB85DznlC1COKLycQGHYuEfZQ37NqbavtxIwV5mfJ1uFBdsujV43J_0KGO4k3XAK1Fwy3kUiblq732hdygNX4W3LBolBVvcSR8tXBBiwfb6atXxiCr8ypW5iGdiXyEG4DVhEcum_TKSQqi-ODhGsnk7_iI"/>
+<button class="absolute w-24 h-24 rounded-full bg-primary/90 text-on-primary flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 group-hover:bg-secondary">
+<span class="material-symbols-outlined text-5xl ml-2" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<!-- Controls Overlay (Glassmorphic) -->
+<div class="absolute bottom-6 left-6 right-6 h-12 rounded-xl bg-black/40 backdrop-blur-md flex items-center px-4 gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-white">volume_up</span>
+<div class="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-1/3 shadow-[0_0_8px_#5de6ff]"></div>
+</div>
+<span class="font-stat-label text-white text-xs">04:12 / 12:45</span>
+<span class="material-symbols-outlined text-white">fullscreen</span>
+</div>
+</div>
+<!-- Progress Bar / Power Meter -->
+<div class="mt-6">
+<div class="flex justify-between items-center mb-2">
+<span class="font-stat-label text-stat-label text-on-surface-variant uppercase tracking-widest">Lesson Progress</span>
+<span class="font-stat-label text-stat-label text-secondary">35% COMPLETE</span>
+</div>
+<div class="h-4 bg-surface-container-highest rounded-full overflow-hidden relative">
+<div class="absolute top-0 left-0 h-full bg-gradient-to-r from-tertiary to-secondary w-[35%] rounded-full shadow-[0_0_15px_rgba(152,218,39,0.5)]">
+<!-- Light sweep animation -->
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-20 animate-[sweep_3s_infinite]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Panels Column -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<!-- Explanation Panel -->
+<section class="glass-panel rounded-[2rem] p-8">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-secondary">info</span>
+<h3 class="font-headline-md text-2xl text-on-surface">The Rule</h3>
+</div>
+<div class="space-y-6 font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+<p>
+                            Use the <span class="grammar-highlight">Present Continuous</span> for actions happening <span class="italic">right now</span>.
+                        </p>
+<div class="bg-surface-container-lowest/50 p-6 rounded-2xl border border-white/5">
+<p class="font-headline-md text-xl mb-4 text-primary">Formula:</p>
+<div class="flex flex-wrap items-center gap-2 font-display-lg-mobile">
+<span class="text-white">Subject</span>
+<span class="text-on-surface-variant">+</span>
+<span class="text-secondary">am/is/are</span>
+<span class="text-on-surface-variant">+</span>
+<span class="text-tertiary">Verb-ing</span>
+</div>
+</div>
+<p class="text-sm opacity-70">Example: "I <span class="text-secondary font-bold">am</span> study<span class="text-tertiary font-bold">ing</span> English."</p>
+</div>
+</section>
+<!-- Examples Grid -->
+<section class="glass-panel rounded-[2rem] p-8">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-2xl text-on-surface">Examples</h3>
+<span class="font-stat-label text-stat-label text-on-surface-variant">TAP TO LISTEN</span>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<!-- Example Chip 1 -->
+<div class="group flex items-center justify-between p-5 rounded-2xl bg-surface-container-high/40 border border-white/5 hover:border-secondary/50 hover:bg-secondary/5 transition-all duration-300 cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<span class="font-headline-md text-xl text-white">I <span class="text-secondary">am</span> walking</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-secondary group-hover:text-on-secondary transition-colors">
+<span class="material-symbols-outlined text-lg">volume_up</span>
+</button>
+</div>
+<!-- Example Chip 2 -->
+<div class="group flex items-center justify-between p-5 rounded-2xl bg-surface-container-high/40 border border-white/5 hover:border-secondary/50 hover:bg-secondary/5 transition-all duration-300 cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">flight</span>
+</div>
+<span class="font-headline-md text-xl text-white">She <span class="text-secondary">is</span> flying</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-secondary group-hover:text-on-secondary transition-colors">
+<span class="material-symbols-outlined text-lg">volume_up</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer CTA -->
+<div class="fixed bottom-0 left-0 md:left-64 right-0 p-8 flex justify-center z-50">
+<button class="group relative px-12 py-5 rounded-2xl font-button-text text-button-text text-xl overflow-hidden shadow-2xl transition-all duration-300 active:scale-95 action-button-glow">
+<!-- Background Gradient -->
+<div class="absolute inset-0 bg-gradient-to-r from-primary-container to-secondary transition-transform duration-500 group-hover:scale-110"></div>
+<!-- Shimmer Effect -->
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+<!-- Content -->
+<div class="relative flex items-center gap-3 text-white">
+<span>¡A practicar!</span>
+<span class="text-2xl">🎯</span>
+</div>
+</button>
+</div>
+</main>
+<script>
+        // Floating Particle Logic
+        const container = document.getElementById('particle-container');
+        const words = ['GRAMMAR', 'ACTION', 'PRESENT', 'VERB', 'LEARN', 'ENGLISH', 'STUDY', 'FUTURE', 'AM', 'IS', 'ARE', 'ING'];
+        
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const word = words[Math.floor(Math.random() * words.length)];
+            particle.innerText = word;
+            
+            // Random properties
+            const startX = Math.random() * window.innerWidth;
+            const startY = Math.random() * window.innerHeight;
+            const duration = 20 + Math.random() * 40;
+            const size = 12 + Math.random() * 24;
+            
+            particle.style.left = `${startX}px`;
+            particle.style.top = `${startY}px`;
+            particle.style.fontSize = `${size}px`;
+            particle.style.opacity = '0.06';
+            
+            container.appendChild(particle);
+            
+            // Animate floating
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 100 + Math.random() * 200;
+            const destX = startX + Math.cos(angle) * distance;
+            const destY = startY + Math.sin(angle) * distance;
+            
+            particle.animate([
+                { transform: 'translate(0, 0)', opacity: 0 },
+                { opacity: 0.06, offset: 0.1 },
+                { transform: `translate(${destX - startX}px, ${destY - startY}px)`, opacity: 0.06, offset: 0.9 },
+                { transform: `translate(${destX - startX + 20}px, ${destY - startY + 20}px)`, opacity: 0 }
+            ], {
+                duration: duration * 1000,
+                iterations: Infinity,
+                easing: 'linear'
+            });
+        }
+
+        // Initialize particles
+        for(let i = 0; i < 15; i++) {
+            createParticle();
+        }
+
+        // Keyframes for Progress Bar Sweep
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes sweep {
+                0% { transform: translateX(-100%); }
+                50% { transform: translateX(400%); }
+                100% { transform: translateX(400%); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+    </script>
+</body></html>
