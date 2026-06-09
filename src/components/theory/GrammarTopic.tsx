@@ -7,6 +7,7 @@ import Celebration from '@/components/Celebration'
 import { recordProgress } from '@/lib/gamification'
 import { playCorrect, playWrong } from '@/lib/sound'
 import SpeakButton from '@/components/SpeakButton'
+import TheoryMedia from '@/components/theory/TheoryMedia'
 import { Badge } from '@/lib/types'
 
 interface Props {
@@ -79,6 +80,7 @@ export default function GrammarTopic({ topic, studentId, onComplete, onBack }: P
         <div className="bg-white rounded-3xl p-5 shadow-2xl">
           <div className="text-xs font-bold text-purple-500 uppercase mb-1">Teoría · Gramática</div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">{topic.title}</h2>
+          <TheoryMedia topic={topic} />
           <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-line leading-relaxed mb-5">
             {topic.explanation}
           </div>

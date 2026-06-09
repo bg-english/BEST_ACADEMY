@@ -5,8 +5,9 @@ import { supabase } from '@/lib/supabase'
 import { Student, Unit } from '@/lib/types'
 import StudentTable from '@/components/StudentTable'
 import DashboardHeader from '@/components/DashboardHeader'
+import TeacherResources from '@/components/TeacherResources'
 
-type Tab = 'overview' | 'manage'
+type Tab = 'overview' | 'manage' | 'resources'
 
 export default function DashboardPage() {
   const [authReady, setAuthReady] = useState(false)
@@ -212,6 +213,10 @@ export default function DashboardPage() {
               className={`px-4 py-2 rounded-lg font-medium ${tab === 'manage' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600'}`}>
               Gestionar alumnos
             </button>
+            <button onClick={() => setTab('resources')}
+              className={`px-4 py-2 rounded-lg font-medium ${tab === 'resources' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600'}`}>
+              Recursos
+            </button>
           </div>
           <button onClick={handleLogout} className="text-sm text-gray-500 hover:underline">Cerrar sesión</button>
         </div>
@@ -301,8 +306,10 @@ export default function DashboardPage() {
               </div>
             </div>
           </>
-        ) : (
+        ) : tab === 'manage' ? (
           <ManageStudents students={students} onChanged={loadStudents} />
+        ) : (
+          <TeacherResources />
         )}
       </main>
     </div>

@@ -76,6 +76,9 @@ export interface Topic {
   kind: 'grammar' | 'vocabulary'
   title: string
   explanation: string
+  video_url?: string
+  image_url?: string
+  slides?: { image_url?: string; title?: string; text?: string }[]
 }
 
 export interface TopicExample {

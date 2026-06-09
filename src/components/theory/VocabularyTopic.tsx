@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Topic, VocabWord, GradeResult } from '@/lib/types'
 import Celebration from '@/components/Celebration'
 import SpeakButton from '@/components/SpeakButton'
+import TheoryMedia from '@/components/theory/TheoryMedia'
 import { recordProgress } from '@/lib/gamification'
 
 interface Props {
@@ -134,6 +135,8 @@ export default function VocabularyTopic({ topic, studentId, onComplete, onBack }
         <div className="flex justify-between items-center mb-3">
           <div className="text-xs font-bold text-purple-500 uppercase">Vocabulario · Palabra {idx + 1} de {words.length}</div>
         </div>
+
+        {idx === 0 && <TheoryMedia topic={topic} />}
 
         {/* Tarjeta de la palabra */}
         <div className="text-center bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl py-3 px-4 mb-4 flex items-center justify-center gap-3 flex-wrap">
