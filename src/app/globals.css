@@ -56,6 +56,38 @@ body {
   animation: xp-sweep 3s linear infinite;
 }
 
+/* Material Symbols */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.filled-icon { font-variation-settings: 'FILL' 1; }
+
+/* Tarjeta interactiva (hover lift + borde cyan) */
+.interactive-card { transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
+.interactive-card:hover {
+  border-color: rgba(93, 230, 255, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px -10px rgba(93, 230, 255, 0.3);
+}
+
+/* Barrido de luz sobre la barra de XP del topbar */
+.xp-sweep { position: relative; overflow: hidden; }
+.xp-sweep::after {
+  content: ""; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  animation: sweep 3s infinite linear;
+}
+@keyframes sweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(220%); } }
+
 .xp-bar {
   transition: width 0.5s ease-in-out;
 }

@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Unit, Student, Badge } from '@/lib/types'
 import UnitCard from '@/components/UnitCard'
-import StudentHeader from '@/components/StudentHeader'
-import BadgeDisplay from '@/components/BadgeDisplay'
+import StudentShell from '@/components/shell/StudentShell'
 import LoginForm from '@/components/LoginForm'
 import Leaderboard from '@/components/Leaderboard'
 import ExamView, { ExamMode } from '@/components/exam/ExamView'
+import { useLang } from '@/lib/LangContext'
 
 export default function HomePage() {
+  const { t } = useLang()
   const [student, setStudent] = useState<Student | null>(null)
   const [units, setUnits] = useState<Unit[]>([])
   const [unitPct, setUnitPct] = useState<Record<number, number>>({})
@@ -86,8 +87,8 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-white text-2xl animate-pulse">Loading BEST Academy...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="font-headline-md text-2xl text-on-surface-variant animate-pulse">Cargando BEST Academy…</div>
       </div>
     )
   }
@@ -96,105 +97,86 @@ export default function HomePage() {
     return <LoginForm onLogin={handleLogin} />
   }
 
-  const level = Math.floor(student.total_xp / 100) + 1
-  const xpInLevel = student.total_xp % 100
-  const nextLevelXp = 100
+  const evals: { m: ExamMode; icon: string; color: string; label: string }[] = [
+    { m: 'placement', icon: 'rocket_launch', color: 'text-primary', label: t('Examen de inicio', 'Placement test') },
+    { m: 'quiz', icon: 'bolt', color: 'text-secondary', label: t('Quiz corto', 'Quick quiz') },
+    { m: 'final', icon: 'school', color: 'text-tertiary', label: t('Examen final', 'Final exam') },
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-      <StudentHeader student={student} level={level} xpInLevel={xpInLevel} nextLevelXp={nextLevelXp} onLogout={handleLogout} />
-
-      <main className="container mx-auto px-4 py-8">
-        {/* Welcome banner */}
-        <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-            Welcome back, {student.name.split(' ')[0]}! 👋
-          </h1>
-          <p className="text-blue-200 text-base sm:text-lg">Keep learning, keep growing!</p>
-          {student.current_streak > 0 && (
-            <div className="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-full mt-3 font-semibold">
-              🔥 {student.current_streak} day streak!
+    <StudentShell student={student} onLogout={handleLogout} active="home">
+      <div className="grid grid-cols-12 gap-8 items-start">
+        {/* Centro */}
+        <div className="col-span-12 lg:col-span-9 space-y-10">
+          {/* Unidades */}
+          <section id="units">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-headline-md text-headline-md flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">rocket_launch</span>
+                {t('Tus unidades', 'Current Units')}
+              </h2>
             </div>
-          )}
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+              {units.map((unit) => (
+                <UnitCard key={unit.id} unit={unit} progress={getUnitProgress(unit.id)} isUnlocked studentId={student.id} onComplete={() => loadStudentData(student.id)} />
+              ))}
+            </div>
+          </section>
 
-        {/* XP Progress Bar */}
-        <div className="max-w-md mx-auto mb-10 bg-white/10 rounded-2xl p-4">
-          <div className="flex justify-between text-white text-sm mb-2">
-            <span>Level {level}</span>
-            <span>{xpInLevel}/{nextLevelXp} XP</span>
-          </div>
-          <div className="w-full bg-white/20 rounded-full h-4">
-            <div
-              className="xp-bar bg-gradient-to-r from-yellow-400 to-orange-500 h-4 rounded-full"
-              style={{ width: `${(xpInLevel / nextLevelXp) * 100}%` }}
-            />
-          </div>
-        </div>
+          {/* Insignias + Evaluaciones */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <section>
+              <h2 className="font-headline-md text-xl mb-6 flex items-center gap-3">
+                <span className="material-symbols-outlined text-secondary">workspace_premium</span>
+                {t('Tus insignias', 'Your badges')}
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {badges.length === 0 && <p className="text-on-surface-variant text-sm">{t('Aún sin insignias. ¡A ganarlas!', 'No badges yet. Go earn them!')}</p>}
+                {badges.map((b) => (
+                  <div key={b.id} className="flex items-center gap-3 bg-primary/10 border border-primary/20 px-4 py-2 rounded-2xl">
+                    <span className="text-xl">{b.icon}</span>
+                    <span className="font-button-text text-sm">{b.name}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
 
-        {/* Units Grid */}
-        <div className="mb-10">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">📚 Your Learning Journey</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {units.map((unit, index) => (
-              <UnitCard
-                key={unit.id}
-                unit={unit}
-                progress={getUnitProgress(unit.id)}
-                isUnlocked={true}
-                studentId={student.id}
-                onComplete={() => loadStudentData(student.id)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Badges */}
-        {badges.length > 0 && (
-          <div className="mb-10">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">🏅 Tus insignias</h2>
-            <BadgeDisplay badges={badges} />
-          </div>
-        )}
-
-        {/* Evaluaciones */}
-        <div className="mb-10">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">📝 Evaluaciones</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <button onClick={() => setExamMode('placement')}
-              className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition text-center">
-              <div className="text-4xl mb-2">🚀</div>
-              <div className="font-bold text-gray-800">Examen de inicio</div>
-              <div className="text-xs text-gray-400">Mide tu nivel</div>
-            </button>
-            <button onClick={() => setExamMode('quiz')}
-              className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition text-center">
-              <div className="text-4xl mb-2">⚡</div>
-              <div className="font-bold text-gray-800">Quiz corto</div>
-              <div className="text-xs text-gray-400">Repaso rápido</div>
-            </button>
-            <button onClick={() => setExamMode('final')}
-              className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition text-center">
-              <div className="text-4xl mb-2">🎓</div>
-              <div className="font-bold text-gray-800">Examen final</div>
-              <div className="text-xs text-gray-400">Todas las unidades</div>
-            </button>
+            <section>
+              <h2 className="font-headline-md text-xl mb-6 flex items-center gap-3">
+                <span className="material-symbols-outlined text-tertiary">quiz</span>
+                {t('Evaluaciones', 'Assessments')}
+              </h2>
+              <div className="space-y-3">
+                {evals.map((e) => (
+                  <button key={e.m} onClick={() => setExamMode(e.m)}
+                    className="glass-card glass-card-hover w-full flex items-center justify-between p-4 rounded-2xl group transition-all">
+                    <div className="flex items-center gap-4">
+                      <span className={`material-symbols-outlined ${e.color}`}>{e.icon}</span>
+                      <span className="font-button-text">{e.label}</span>
+                    </div>
+                    <span className="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+                  </button>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
 
-        {/* Ranking de la clase */}
-        <div className="mb-10">
+        {/* Columna derecha */}
+        <div className="col-span-12 lg:col-span-3 space-y-6" id="leaderboard">
           <Leaderboard studentName={student.name} />
+          <div className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-primary-container to-surface-container shadow-2xl">
+            <h4 className="font-headline-md text-lg mb-2">{t('¿Sabías que…?', 'Did you know?')}</h4>
+            <p className="font-body-md text-sm text-on-primary-container/80">
+              {t('Practicar un poco cada día sube tu racha y tu XP más rápido.', 'A little practice every day boosts your streak and XP faster.')}
+            </p>
+          </div>
         </div>
-      </main>
+      </div>
 
       {examMode && (
-        <ExamView
-          mode={examMode}
-          studentId={student.id}
-          onClose={() => { setExamMode(null); loadStudentData(student.id) }}
-        />
+        <ExamView mode={examMode} studentId={student.id} onClose={() => { setExamMode(null); loadStudentData(student.id) }} />
       )}
-    </div>
+    </StudentShell>
   )
 }
